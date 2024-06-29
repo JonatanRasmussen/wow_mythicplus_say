@@ -1,6 +1,6 @@
 ### My project-specific ignores:
 # Cached wowhead htmls
-wowhead
+wowhead_cache
 
 
 ### C# IGNORES --- COPY PASTE FROM https://gist.github.com/takekazuomi/10955889
