@@ -1,2 +1,4 @@
+from parse_excelsheet import ParseExcelsheet
+
 if __name__ == "__main__":
-    pass
+    ParseExcelsheet.generate_weakaura_code()

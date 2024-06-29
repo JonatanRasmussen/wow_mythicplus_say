@@ -7,7 +7,7 @@ from spreadsheet_spell import SpreadsheetSpell
 class ParseExcelsheet:
 
     @staticmethod
-    def _generate_weakaura_code() -> str:
+    def generate_weakaura_code() -> str:
         df = ParseExcelsheet._get_df()
         spells = ParseExcelsheet._create_spelllist(df)
         weakaura_code = ParseExcelsheet._create_weakaura_code(spells)
@@ -23,7 +23,8 @@ class ParseExcelsheet:
     @staticmethod
     def _create_spelllist(df: pd.DataFrame) -> List[SpreadsheetSpell]:
         spells = []
-        for _, row in df.iterrows():
+        for index, row in df.iterrows():
+            print(f"{int(str(index)) + 1} of {df.shape[0]}: {row['Dungeon']} {row['Section']} {row['SpellID']} {row['AbilityName']}")
             spell = SpreadsheetSpell(
                 dungeon=row['Dungeon'],
                 zone_id=row['ZoneID'],
@@ -32,8 +33,8 @@ class ParseExcelsheet:
                 rt=row['Rt'],
                 action=row['Action'],
                 wa_name=row['AbilityName'],
-                spell_id=row['Spell ID'],
-                icon_id=row['Icon ID'],
+                spell_id=row['SpellID'],
+                icon_id=row['IconID'],
                 roles=row['Roles']
             )
             spell.cross_reference_wowhead_data()

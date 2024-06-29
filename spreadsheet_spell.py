@@ -28,9 +28,9 @@ class SpreadsheetSpell:
         self.spell_name_and_id: str = f"{self.ability_name} {spell_id}"
 
     def print_all_data(self) -> None:
+        print()
         for attr, value in self.__dict__.items():
             print(f"{attr}: {value}")
-        print()
 
     def cross_reference_wowhead_data(self) -> None:
         wowhead_spell = WowheadSpell(self.spell_id)
@@ -48,20 +48,20 @@ class SpreadsheetSpell:
 
     def _crossref_spell_name(self, wowhead_spell: WowheadSpell) -> None:
         if wowhead_spell.spell_name != self.ability_name:
-            print(f"Warning: {self.spell_name_and_id}'s spell_name ({self.ability_name}) does not match wowhead data ({wowhead_spell.spell_name})")
+            print(f"Warning: {self.spell_name_and_id}'s spell_name ({self.ability_name}) does not match Wowhead's name ({wowhead_spell.spell_name})")
 
     def _crossref_icon_id(self, wowhead_spell: WowheadSpell) -> None:
         if self.icon_id != -1 and wowhead_spell.icon_id != self.icon_id:
-            print(f"Error: {self.spell_name_and_id}'s icon_id ({self.icon_id}) does not match wowhead data ({wowhead_spell.icon_id})")
+            print(f"Error: {self.spell_name_and_id}'s icon_id ({self.icon_id}) does not match Wowhead's icon_id ({wowhead_spell.icon_id})")
 
     def _crossref_channeled_cast(self, wowhead_spell: WowheadSpell) -> None:
-        if self.cast == self.CAST_VALUE_CHANNEL and wowhead_spell.cast_value_is_channeled:
-            print(f"Error: {self.spell_name_and_id}'s cast type ({self.cast}) does not match wowhead data (Cast time: {wowhead_spell.cast_time})")
+        if self.cast == self.CAST_VALUE_CHANNEL and not wowhead_spell.cast_value_is_channeled:
+            print(f"Error: {self.spell_name_and_id}'s cast type ({self.cast}) does not match Wowhead's cast_time ({wowhead_spell.cast_time})")
 
     def _crossref_instant_cast(self, wowhead_spell: WowheadSpell) -> None:
         if self.cast == self.CAST_VALUE_CAST and wowhead_spell.cast_value_is_instant:
-            print(f"Error: {self.spell_name_and_id}'s cast type ({self.cast}) does not match wowhead data (Cast time: {wowhead_spell.cast_time})")
+            print(f"Error: {self.spell_name_and_id}'s cast type ({self.cast}) does not match Wowhead's cast_time ({wowhead_spell.cast_time})")
 
     def _crossref_zone_name(self, wowhead_spell: WowheadSpell) -> None:
-        if wowhead_spell.zone_name != self.dungeon:
-            print(f"Error: {self.spell_name_and_id}'s dungeon ({self.dungeon}) does not match wowhead data ({wowhead_spell.zone_name})")
+        if wowhead_spell.zone_name != self.dungeon and wowhead_spell.zone_name_was_found:
+            print(f"Error: {self.spell_name_and_id}'s dungeon ({self.dungeon}) does not match Wowhead's zone_name ({wowhead_spell.zone_name})")
