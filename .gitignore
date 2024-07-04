@@ -1,6 +1,9 @@
 ### My project-specific ignores:
 # Cached wowhead htmls
 wowhead_cache
+todo.txt
+table.html
+table.csv
 
 
 ### C# IGNORES --- COPY PASTE FROM https://gist.github.com/takekazuomi/10955889
