@@ -1,5 +1,7 @@
 ### My project-specific ignores:
 # Cached wowhead htmls
+scraped_data
+webcache
 wowhead_cache
 todo.txt
 table.html
