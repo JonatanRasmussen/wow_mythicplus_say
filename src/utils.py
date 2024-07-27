@@ -1,5 +1,5 @@
 import os
-
+import time
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -16,8 +16,8 @@ class Utils:
     @staticmethod
     def create_selenium_webdriver() -> webdriver.Chrome:
         options = Options()
-        options.add_argument("--log-level=3")
         options.add_argument('--disable-logging')
+        options.add_argument("--log-level=3")
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         return driver
 
@@ -68,12 +68,11 @@ class Utils:
         return html[start_index:end_index + len(end)]
 
     @staticmethod
-    def read_file(file_path: str) -> str:
+    def try_read_file(file_path: str) -> str:
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
                 return file.read()
         except FileNotFoundError:
-            print(f"BudoWarning: The file {file_path} does not exist.")
             return ""
         except Exception as e:
             print(f"BudoError: An error occurred while reading the file {file_path}. Error: {e}")
@@ -96,6 +95,22 @@ class Utils:
             print(f"DataFrame successfully written to {file_path}")
         except Exception as e:
             print(f"BudoError: An error occurred while writing the DataFrame to {file_path}. Error: {e}")
+
+    @staticmethod
+    def read_pandas_df(file_path: str) -> pd.DataFrame:
+        try:
+            df = pd.read_csv(file_path)
+            print(f"DataFrame successfully read from {file_path}")
+            return df
+        except FileNotFoundError:
+            print(f"BudoInfo: The file {file_path} does not exist.")
+            return pd.DataFrame()
+        except pd.errors.EmptyDataError:
+            print(f"BudoWarning: The file {file_path} is empty.")
+            return pd.DataFrame()
+        except Exception as e:
+            print(f"BudoError: An error occurred while reading the DataFrame from {file_path}. Error: {e}")
+            return pd.DataFrame()
 
     @staticmethod
     def ensure_dir_exists(file_path: str) -> None:

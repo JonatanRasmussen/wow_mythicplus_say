@@ -3,42 +3,38 @@ from typing import List
 import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
 
-from global_configs import GlobalConfigs
-from utils import Utils
+from .config.consts_wcl import WclConsts
+from .config.wcl_zone_groups import WclZoneFactory
+from src.utils import Utils
 
 class WowEncounter:
-    def __init__(self, wcl_boss_id: str, name: str, abbreviation: str):
+    def __init__(self, wcl_boss_id: str, icon_url: str, name: str, abbreviation: str):
         self.wcl_boss_id = wcl_boss_id
+        self.icon_url = wcl_boss_id if (icon_url == "") else icon_url
         self.name = name
         self.abbreviation = abbreviation
         self.serialized_html_table = ""
         self.df = pd.DataFrame()
 
 class WclZone:
-    def __init__(self, wcl_zone_id: str, name: str):
-        self.wcl_zone_id = wcl_zone_id
-        self.name = name
-        self.wcl_bosses = []  # type: List[WowEncounter]
+    def __init__(self, wcl_zone_id: str):
+        zone_data = WclZoneFactory.WCL_ZONES.get(wcl_zone_id)
+        if not zone_data:
+            raise ValueError(f"Invalid zone ID: {wcl_zone_id}")
 
-    @classmethod
-    def create_tww_m_plus_s1(cls):
-        zone = cls("39", "TWW M+ S1")
-        zone.wcl_bosses = [
-            WowEncounter("12660", "Ara-Kara, City of Echoes", "AK"),
-            WowEncounter("12669", "City of Threads", "CoT"),
-            WowEncounter("60670", "Grim Batol", "GB"),
-            WowEncounter("62290", "Mists of Tirna Scithe", "MoTS"),
-            WowEncounter("61822", "Siege of Boralus", "SoB"),
-            WowEncounter("12662", "The Dawnbreaker", "Db"),
-            WowEncounter("62286", "The Necrotic Wake", "NW"),
-            WowEncounter("12652", "The Stonevault", "Sv"),
-        ]
-        return zone
+        self.wcl_zone_id = wcl_zone_id
+        self.name = zone_data[WclZoneFactory.NAME_KEY]
+        self.wcl_bosses = []  # type: List[WowEncounter]
+        for boss_id, icon_url, name, abbreviation in zone_data[WclZoneFactory.BOSSES_KEY]:
+            self.wcl_bosses.append(WowEncounter(boss_id, icon_url, name, abbreviation))
 
 class WclLogSearch:
 
     def __init__(self, wcl_zone: WclZone):
         self.wcl_zone = wcl_zone
+        self.scrape_progress_boss_number = 0
+        self.scrape_progress_total_bosses = len(wcl_zone.wcl_bosses)
+        self.scrape_progress_searchpage_number = 0
 
     def merge_csvs(self) -> None:
         bosses = [] #type: List[WowEncounter]
@@ -49,7 +45,7 @@ class WclLogSearch:
         log_guids = {}
 
         for i, boss in enumerate(bosses):
-            file_path = GlobalConfigs.wcl_log_search_csvfile(self.wcl_zone.wcl_zone_id, boss.wcl_boss_id)
+            file_path = WclConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, boss.wcl_boss_id)
             df = pd.read_csv(file_path)
             for _, row in df.iterrows():
                 guid = row['GUID']
@@ -63,7 +59,7 @@ class WclLogSearch:
         for i, boss in enumerate(bosses):
             merged_df[boss.abbreviation] = merged_df['GUID'].map(lambda x: log_guids[x][i])
 
-        output_file = file_path = GlobalConfigs.wcl_log_search_csvfile(self.wcl_zone.wcl_zone_id, "")
+        output_file = file_path = WclConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, "")
         merged_df.to_csv(output_file, index=False)
         print(f"Combined CSV saved as {output_file}")
 
@@ -106,8 +102,11 @@ class WclLogSearch:
         html_tables = []  # type: List[str]
         driver = Utils.create_selenium_webdriver()
         try:
-            page_to_stop_at = 20
+            page_to_stop_at = WclConsts.SEARCHPAGE_TO_STOP_AT
+            self.scrape_progress_searchpage_number = 0
             for page in range(0, page_to_stop_at):
+                self.scrape_progress_searchpage_number += 1
+                self.print_scrape_progress()
                 url = f"https://www.warcraftlogs.com/zone/reports?zone={self.wcl_zone.wcl_zone_id}&boss={wcl_boss.wcl_boss_id}&page={page+1}"
                 scraped_html = Utils.scrape_url_with_selenium(url, 10, driver)
                 if scraped_html:
@@ -122,11 +121,11 @@ class WclLogSearch:
         return html_tables
 
     def fetch_search_table(self, wcl_boss: WowEncounter) -> List[str]:
-        file_path = GlobalConfigs.wcl_log_search_txtfile(self.wcl_zone.wcl_zone_id, wcl_boss.wcl_boss_id)
-        serialized_html_tables = Utils.read_file(file_path)
+        file_path = WclConsts.wcl_log_search_table_webcache_path(self.wcl_zone.wcl_zone_id, wcl_boss.wcl_boss_id)
+        serialized_html_tables = Utils.try_read_file(file_path)
         delimiter = "█"
 
-        if len(serialized_html_tables) != 0 and GlobalConfigs.USE_CACHED_WARCRAFTLOGS_SEARCH:
+        if len(serialized_html_tables) != 0 and not WclConsts.RESCRAPE_SEARCHPAGES:
             return serialized_html_tables.split(delimiter)
 
         html_tables = self.scrape_search_table(wcl_boss)
@@ -139,6 +138,7 @@ class WclLogSearch:
 
     def search_for_logs(self) -> None:
         for wcl_boss in self.wcl_zone.wcl_bosses:
+            self.scrape_progress_boss_number += 1
             html_tables = self.fetch_search_table(wcl_boss)
             dfs = []
             for table in html_tables:
@@ -153,12 +153,9 @@ class WclLogSearch:
 
             zone_id = self.wcl_zone.wcl_zone_id
             boss_id = wcl_boss.wcl_boss_id
-            file_path = GlobalConfigs.wcl_log_search_csvfile(zone_id, boss_id)
+            file_path = WclConsts.wcl_log_search_table_csv_path(zone_id, boss_id)
             Utils.write_pandas_df(wcl_boss.df, file_path)
         self.merge_csvs()
 
-# Example usage
-if __name__ == "__main__":
-    tww_m_plus_s1 = WclZone.create_tww_m_plus_s1()
-    scrape_warcraftlogs = WclLogSearch(tww_m_plus_s1)
-    scrape_warcraftlogs.search_for_logs()
+    def print_scrape_progress(self):
+        print(f"scraping wcl_zone {self.scrape_progress_boss_number} of {self.scrape_progress_total_bosses}: Page {self.scrape_progress_searchpage_number}")

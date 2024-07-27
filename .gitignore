@@ -1,8 +1,7 @@
 ### My project-specific ignores:
 # Cached wowhead htmls
-scraped_data
-webcache
-wowhead_cache
+cached_html
+data_raw
 todo.txt
 table.html
 table.csv
@@ -473,6 +472,7 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+tempCodeRunnerFile.py
 
 # Cake - Uncomment if you are using it
 # tools/**

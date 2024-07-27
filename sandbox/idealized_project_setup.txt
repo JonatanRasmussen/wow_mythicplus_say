@@ -1,0 +1,25 @@
+webscraper/
+│
+├── data/                 # Directory to store raw and processed data
+│   ├── raw/              # Raw data as scraped
+│   └── processed/        # Cleaned and processed data
+│
+├── logs/                 # Directory to store log files
+│
+├── output/               # Directory to store final output files or reports
+│
+├── src/                  # Source code directory
+│   ├── __init__.py       # Makes src a package
+│   ├── config.py         # Configuration file for constants and settings
+│   ├── scraper.py        # Core scraping functionality
+│   ├── parser.py         # Functions to parse the scraped data
+│   ├── storage.py        # Functions to save and load data
+│   └── utils.py          # Utility functions (e.g., logging, helpers)
+│
+├── tests/                # Directory for unit and integration tests
+│
+├── main.py               # Entry point for running the scraper
+│
+├── requirements.txt      # Project dependencies
+│
+└── README.md             # Project documentation
