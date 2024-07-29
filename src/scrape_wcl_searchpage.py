@@ -4,6 +4,7 @@ import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
 
 from .config.consts_wcl import WclConsts
+from .config.consts_wcl_columns import WclColumnConsts
 from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
 
@@ -44,11 +45,12 @@ class WclLogSearch:
         merged_df = pd.DataFrame()
         log_guids = {}
 
+        row_guid = WclColumnConsts.SEARCHPAGE_GUID
         for i, boss in enumerate(bosses):
             file_path = WclConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, boss.wcl_boss_id)
             df = pd.read_csv(file_path)
             for _, row in df.iterrows():
-                guid = row['GUID']
+                guid = row[row_guid]
                 if guid not in log_guids:  # If GUID not in combined df, add it
                     log_guids[guid] = [0] * len(bosses)
                     log_guids[guid][i] = 1
@@ -57,7 +59,7 @@ class WclLogSearch:
                     log_guids[guid][i] = 1
 
         for i, boss in enumerate(bosses):
-            merged_df[boss.abbreviation] = merged_df['GUID'].map(lambda x: log_guids[x][i])
+            merged_df[boss.abbreviation] = merged_df[row_guid].map(lambda x: log_guids[x][i])
 
         output_file = file_path = WclConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, "")
         merged_df.to_csv(output_file, index=False)
@@ -74,7 +76,7 @@ class WclLogSearch:
             print("BudoError: Table cannot .find_all() due to being a NavigableString")
             return pd.DataFrame()
 
-        headers = ['GUID']
+        headers = [WclColumnConsts.SEARCHPAGE_GUID]
         for th in table.find_all('th'): # Extract header
             url = th.get_text(strip=True)
             log_guid = url.replace("/reports/", "")
@@ -147,9 +149,15 @@ class WclLogSearch:
 
             wcl_boss.df = pd.concat(dfs, ignore_index=True)
 
-            wcl_boss.df[['UploadedAsEpoch', 'UploadedAsDateTime']] = wcl_boss.df['Uploaded'].str.split('$', expand=True)
-            wcl_boss.df[['DurationAsEpoch', 'DurationAsTime']] = wcl_boss.df['Duration'].str.split('$', expand=True)
-            wcl_boss.df.drop(columns=['Uploaded', 'Duration'], inplace=True)
+            uploaded = WclColumnConsts.SEARCHPAGE_UPLOADED
+            uploaded_epoch = WclColumnConsts.UPLOADED_AS_EPOCH
+            uploaded_datetime = WclColumnConsts.UPLOADED_AS_DATETIME
+            duration = WclColumnConsts.SEARCHPAGE_DURATION
+            duration_epoch = WclColumnConsts.DURATION_AS_EPOCH
+            duration_time = WclColumnConsts.DURATION_AS_TIME
+            wcl_boss.df[[uploaded_epoch, uploaded_datetime]] = wcl_boss.df[uploaded].str.split('$', expand=True)
+            wcl_boss.df[[duration_epoch, duration_time]] = wcl_boss.df[duration].str.split('$', expand=True)
+            wcl_boss.df.drop(columns=[uploaded, duration], inplace=True)
 
             zone_id = self.wcl_zone.wcl_zone_id
             boss_id = wcl_boss.wcl_boss_id

@@ -114,6 +114,7 @@ class Utils:
 
     @staticmethod
     def ensure_dir_exists(file_path: str) -> None:
+        file_path = os.path.abspath(file_path)
         directory = os.path.dirname(file_path)
         if not os.path.exists(directory):
-            os.makedirs(directory)
+            os.makedirs(directory, exist_ok=True)

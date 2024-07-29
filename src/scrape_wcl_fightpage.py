@@ -5,6 +5,7 @@ from typing import List, Dict
 from dataclasses import dataclass
 
 from .config.consts_wcl import WclConsts
+from .config.consts_wcl_columns import WclColumnConsts
 from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
 
@@ -23,14 +24,6 @@ class WclFight:
     fight_time: str
 
 class WclFightpage:
-
-    @staticmethod
-    def testyy():
-        url = "https://www.warcraftlogs.com/reports/nc6PFX3arQZf4yvA#translate=true&fight=22"
-        driver = Utils.create_selenium_webdriver()
-        results = Utils.scrape_url_with_selenium(url, 10, driver)
-        print(results)
-
 
     @staticmethod
     def quick_test_ignore_this() -> None:
@@ -57,7 +50,7 @@ class WclFightpage:
         df = pd.read_csv(file_path)
         log_guids = []
         for _, row in df.iterrows():
-            guid = row['GUID']
+            guid = row[WclColumnConsts.SEARCHPAGE_GUID]
             log_guids.append(guid)
         return log_guids
 
@@ -65,18 +58,17 @@ class WclFightpage:
     def scrape_fightpage(log_guids: List[str]) -> None:
         fights = []  #type: List[WclFight]
         driver = Utils.create_selenium_webdriver()
-        log_counter = 0
-        log_count_to_stop_at = WclConsts.LOG_COUNT_TO_STOP_AT
         try:
+            counter = 0
             for log_guid in log_guids:
-                if log_counter >= log_count_to_stop_at:
+                counter += 1
+                if counter > WclConsts.FIGHTPAGE_TO_STOP_AT:
                     break
-                log_counter += 1
-                print(f"scraping log {log_guid} ({log_counter} of {log_count_to_stop_at})")
+                print(f"scraping log {log_guid} ({counter} of {WclConsts.FIGHTPAGE_TO_STOP_AT})")
 
                 file_path = WclConsts.wcl_log_fights_webcache_path(log_guid)
                 trimmed_html_content = Utils.try_read_file(file_path)
-                if len(trimmed_html_content) == 0 or WclConsts.RESCRAPE_SEARCHPAGES:
+                if len(trimmed_html_content) == 0 or WclConsts.RESCRAPE_FIGHTPAGES:
                     # Webscrape log instead of using the locally cached version
                     url = f"https://www.warcraftlogs.com/reports/{log_guid}#translate=true"
                     scraped_html = Utils.scrape_url_with_selenium(url, 10, driver)
@@ -100,11 +92,11 @@ class WclFightpage:
             return html_content
 
     @staticmethod
-    def get_log_guids(wcl_zone_id, wcl_boss_id: str) -> List[str]:
+    def get_log_guids(wcl_zone_id: str, wcl_boss_id: str) -> List[str]:
         csv_path = WclConsts.wcl_log_search_table_csv_path(wcl_zone_id, wcl_boss_id)
         df = Utils.read_pandas_df(csv_path)
         if not df.empty:
-            return df['GUID'].tolist()
+            return df[WclColumnConsts.SEARCHPAGE_GUID].tolist()
         return []
 
     @staticmethod
@@ -192,9 +184,9 @@ class WclFightpage:
 
         # Extract outcome
         if 'kill' in class_name:
-            outcome = 'kill'
+            outcome = WclColumnConsts.FIGHT_OUTCOME_KILL
         elif 'wipe' in class_name:
-            outcome = 'wipe'
+            outcome = WclColumnConsts.FIGHT_OUTCOME_WIPE
 
         # Extract duration
         duration_span = entry.find('span', class_='fight-grid-duration')
@@ -237,10 +229,10 @@ class WclFightpage:
             kill_span = boss_kill.find('span', class_='kill')
             wipe_span = boss_kill.find('span', class_='wipe')
             if kill_span:
-                outcome = 'kill'
+                outcome = WclColumnConsts.FIGHT_OUTCOME_KILL
                 span = kill_span
             elif wipe_span:
-                outcome = 'wipe'
+                outcome = WclColumnConsts.FIGHT_OUTCOME_WIPE
                 span = wipe_span
             else:
                 span = None
