@@ -2,26 +2,12 @@ import pandas as pd
 import re
 from bs4 import BeautifulSoup
 from typing import List, Dict
-from dataclasses import dataclass
 
-from .config.consts_wcl import WclConsts
+from .config.consts_wcl import WclConsts, WclFight
 from .config.consts_wcl_columns import WclColumnConsts
 from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
 
-@dataclass
-class WclFight:
-    log_guid: str
-    fight_id: str
-    outcome: str
-    duration: str
-    duration_in_sec: int
-    wcl_boss_id: str
-    boss_text: str
-    zone_name: str
-    boss_level: str
-    affix_icon: str
-    fight_time: str
 
 class WclFightpage:
 

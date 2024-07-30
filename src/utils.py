@@ -1,6 +1,7 @@
 import os
 import time
 import pandas as pd
+from typing import List
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -36,6 +37,33 @@ class Utils:
             )
         except TimeoutException:
             print(f"Timeout after {timeout_in_sec} seconds waiting for page to load.")
+            return ""
+
+        # Get the inner HTML of the <html> element
+        html_element = driver.find_element(By.TAG_NAME, 'html')
+        html_content = html_element.get_attribute('innerHTML')
+
+        # Ensure html_content is not None
+        if not html_content:
+            print("BudoError: get_attribute('innerHTML') returned None")
+            return ""
+
+        return html_content
+
+    @staticmethod
+    def scrape_url_but_await_id(url: str, timeout_in_sec: int, element_ids: List[str], driver: webdriver.Chrome) -> str:
+        driver.get(url)
+
+        # Ensure the page loads within the specified timeout
+        try:
+            WebDriverWait(driver, timeout_in_sec).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ','.join(f'#{id}' for id in element_ids))),
+            )
+        except TimeoutException:
+            html_element = driver.find_element(By.TAG_NAME, 'html')
+            html_content = html_element.get_attribute('innerHTML')
+            Utils.write_file(str(html_content), "test_wtf.txt")
+            print(f"BudoWarning: Timeout after {timeout_in_sec} seconds waiting for page to load (url = {url}).")
             return ""
 
         # Get the inner HTML of the <html> element

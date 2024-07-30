@@ -18,6 +18,8 @@ class GlobalConfigs:
     # Feature Flags
     SCRAPE_WIPES = False
     SCRAPE_MISSING_FIGHT_IDS = False
+    SCRAPE_SHORT_FIGHTS = False
+    SHORT_FIGHT_THRESHHOLD_IN_SEC = 30
 
     # Rescrape everything or use cached html if available
     FORCE_RESCRAPE_ALL = False
