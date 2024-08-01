@@ -1,12 +1,12 @@
 class WclColumnConsts:
     # Wcl searchpage column names
     SEARCHPAGE_GUID = "GUID"
-    SEARCHPAGE_DESCRIPTION = "Description" # DO NOT CHANGE, Wcl website const
-    SEARCHPAGE_GUILD = "Guild" # DO NOT CHANGE, Wcl website const
-    SEARCHPAGE_OWNER = "Owner" # DO NOT CHANGE, Wcl website const
-    SEARCHPAGE_VISIBILITY = "Visibility" # DO NOT CHANGE, Wcl website const
-    SEARCHPAGE_UPLOADED = "Uploaded" # DO NOT CHANGE, Wcl website const
-    SEARCHPAGE_DURATION = "Duration" # DO NOT CHANGE, Wcl website const
+    SEARCHPAGE_DESCRIPTION = "Description"  # DO NOT CHANGE, Wcl website const
+    SEARCHPAGE_GUILD = "Guild"              # DO NOT CHANGE, Wcl website const
+    SEARCHPAGE_OWNER = "Owner"              # DO NOT CHANGE, Wcl website const
+    SEARCHPAGE_VISIBILITY = "Visibility"    # DO NOT CHANGE, Wcl website const
+    SEARCHPAGE_UPLOADED = "Uploaded"        # DO NOT CHANGE, Wcl website const
+    SEARCHPAGE_DURATION = "Duration"        # DO NOT CHANGE, Wcl website const
     UPLOADED_AS_EPOCH = "UploadedAsEpoch"
     UPLOADED_AS_DATETIME = "UploadedAsDateTime"
     DURATION_AS_EPOCH = "DurationAsEpoch"

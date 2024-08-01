@@ -1,23 +1,21 @@
 import pandas as pd
 import re
-import csv
 from bs4 import BeautifulSoup, NavigableString, Tag
 from typing import List, Dict, Callable, NamedTuple
-from dataclasses import dataclass
 from selenium import webdriver
 
 from.scrape_wcl_fightpage import WclFight
 from.format_wcl_encounter import FormatWclEncounter
-from .config.consts_wcl import WclConsts
+from .config.consts_file_paths import FilePathConsts
+from .config.global_configs import GlobalConfigs
 from .config.consts_wcl_columns import WclColumnConsts
-from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
 
 class WclEncounter:
 
     @staticmethod
     def load_fights_df() -> pd.DataFrame:
-        csv_path = WclConsts.wcl_log_fights_csv_path(WclConsts.ZONE_ID, "")
+        csv_path = FilePathConsts.wcl_log_fights_csv_path(GlobalConfigs.WCL_ZONE_ID, "")
         df = Utils.read_pandas_df(csv_path)
         if df.empty:
             print("Error: Pandas dataframe is empty! Run the scrape_wcl_fightpage script first!")
@@ -25,7 +23,7 @@ class WclEncounter:
 
     @staticmethod
     def read_log_upload_dates() -> List[str]:
-        file_path = WclConsts.wcl_log_search_table_csv_path(WclConsts.ZONE_ID, "")
+        file_path = FilePathConsts.wcl_log_search_table_csv_path(GlobalConfigs.WCL_ZONE_ID, "")
         df = pd.read_csv(file_path)
         guid_upload_epoch = {}  #type: Dict[str, int]
         for _, row in df.iterrows():
@@ -69,11 +67,12 @@ class WclEncounter:
 
     @staticmethod
     def scrape_encounters_for_all_logs() -> None:
+        all_wcl_encounters = []  # type: List[FormatWclEncounter]
         df = WclEncounter.load_fights_df()
         driver = Utils.create_selenium_webdriver()
         logs_sorted_by_upload = WclEncounter.read_log_upload_dates()
         log_counter = 0
-        log_count_to_stop_at = WclConsts.LOG_TO_STOP_AT
+        log_count_to_stop_at = GlobalConfigs.WCL_LOG_TO_STOP_AT
         for log_guid in logs_sorted_by_upload:
             if log_counter >= log_count_to_stop_at:
                 break
@@ -83,11 +82,14 @@ class WclEncounter:
             if not WclEncounter.is_there_something_to_scrape(encounters):
                 continue
             print(f"scraping encounters for log {log_guid} ({log_counter} of {log_count_to_stop_at})")
-            WclEncounter.scrape_all_encounters_in_log(log_guid, encounters, driver)
+            wcl_encounters = WclEncounter.scrape_all_encounters_in_log(log_guid, encounters, driver)
+            all_wcl_encounters.extend(wcl_encounters)
         Utils.quit_selenium_webdriver(driver)
+        FormatWclEncounter.write_encounters_to_csv(all_wcl_encounters)
 
     @staticmethod
-    def scrape_all_encounters_in_log(log_guid: str, encounters: List[WclFight], driver: webdriver.Chrome) -> None:
+    def scrape_all_encounters_in_log(log_guid: str, encounters: List[WclFight], driver: webdriver.Chrome) -> List[FormatWclEncounter]:
+        wcl_encounters = []  # type: List[FormatWclEncounter]
         scraped_fight_ids = []  # type: List[str]
         encounters_with_missing_fight_ids = []  # type: List[WclFight]
         counter = 0
@@ -96,31 +98,35 @@ class WclEncounter:
             if not encounter.fight_id or encounter.fight_id == "nan":
                 encounters_with_missing_fight_ids.append(encounter)
             else:
-                if counter > WclConsts.ENCOUNTER_TO_STOP_AT:
+                if counter > GlobalConfigs.WCL_ENCOUNTER_TO_STOP_AT:
                     break
                 scraped_fight_ids.append(encounter.fight_id)
-                if WclConsts.SCRAPE_WIPES or encounter.outcome == WclColumnConsts.FIGHT_OUTCOME_KILL:
-                    if WclConsts.SCRAPE_SHORT_FIGHTS or encounter.duration_in_sec >= WclConsts.SHORT_FIGHT_THRESHOLD:
+                if GlobalConfigs.SCRAPE_WIPES or encounter.outcome == WclColumnConsts.FIGHT_OUTCOME_KILL:
+                    if GlobalConfigs.SCRAPE_SHORT_FIGHTS or encounter.duration_in_sec >= GlobalConfigs.SHORT_FIGHT_THRESHHOLD_IN_SEC:
                         print(f"scraping fight_id={encounter.fight_id} for log {log_guid} (fight {encounter.fight_id})")
-                        WclEncounter.scrape_encounter(encounter, encounter.fight_id, driver)
-        if WclConsts.SCRAPE_MISSING_FIGHT_IDS:
+                        wcl_encounter = WclEncounter.scrape_encounter(encounter, encounter.fight_id, driver)
+                        wcl_encounters.append(wcl_encounter)
+        if GlobalConfigs.SCRAPE_MISSING_FIGHT_IDS:
             for i, encounter in enumerate(encounters):
                 fight_id = str(i + 1)
                 counter += 1
                 if fight_id not in scraped_fight_ids:
-                    if counter > WclConsts.ENCOUNTER_TO_STOP_AT:
+                    if counter > GlobalConfigs.WCL_ENCOUNTER_TO_STOP_AT:
                         break
-                    if WclConsts.SCRAPE_WIPES or encounter.outcome == WclColumnConsts.FIGHT_OUTCOME_KILL:
-                        if WclConsts.SCRAPE_SHORT_FIGHTS or encounter.duration_in_sec >= WclConsts.SHORT_FIGHT_THRESHOLD:
+                    if GlobalConfigs.SCRAPE_WIPES or encounter.outcome == WclColumnConsts.FIGHT_OUTCOME_KILL:
+                        if GlobalConfigs.SCRAPE_SHORT_FIGHTS or encounter.duration_in_sec >= GlobalConfigs.SHORT_FIGHT_THRESHHOLD_IN_SEC:
                             print(f"scraping fight_id={fight_id} for log {log_guid}")
-                            WclEncounter.scrape_encounter(encounter, fight_id, driver)
+                            wcl_encounter = WclEncounter.scrape_encounter(encounter, fight_id, driver)
+                            wcl_encounters.append(wcl_encounter)
+        return wcl_encounters
+
 
     @staticmethod
-    def scrape_encounter(encounter: WclFight, fight_id: str, driver: webdriver.Chrome) -> None:
-        file_path = WclConsts.wcl_log_encounter_webcache_path(encounter.log_guid, fight_id)
+    def scrape_encounter(encounter: WclFight, fight_id: str, driver: webdriver.Chrome) -> FormatWclEncounter:
+        file_path = FilePathConsts.wcl_log_encounter_webcache_path(encounter.log_guid, fight_id)
         delimiter = "▓"
         concatenated_html = Utils.try_read_file(file_path)
-        if len(concatenated_html) == 0 or WclConsts.RESCRAPE_ENCOUNTERS:
+        if len(concatenated_html) == 0 or GlobalConfigs.WCL_ENCOUNTERS_RESCRAPE:
             base_url = f"https://www.warcraftlogs.com/reports/{encounter.log_guid}#fight={fight_id}&translate=true"
             # Scrape raid setup
             setup_url = base_url + "&view=events"
@@ -173,14 +179,14 @@ class WclEncounter:
             Utils.write_file(concatenated_html, file_path)
         else:
             split_html = concatenated_html.split(delimiter)  #type: List[str]
-            if len(concatenated_html) != 5:
-                print(f"BudoError: {encounter.log_guid}, {fight_id} has unexpected format.")
+            if len(split_html) != 5:
+                print(f"BudoError: {encounter.log_guid}, {fight_id} has unexpected format. Length is {len(concatenated_html)}")
             fight_info_html = split_html[0]
             setup_html = split_html[1]
             enemy_deaths_html = split_html[2]
             ability_casts_html = split_html[3]
             ally_deaths_html = split_html[4]
-        FormatWclEncounter.parse_all(encounter, fight_id, fight_info_html, setup_html, enemy_deaths_html, ability_casts_html, ally_deaths_html)
+        return FormatWclEncounter.parse_all(encounter, fight_id, fight_info_html, setup_html, enemy_deaths_html, ability_casts_html, ally_deaths_html)
 
 
     @staticmethod
@@ -189,15 +195,15 @@ class WclEncounter:
         criteria = [
             FilterCriterion(
                 condition=lambda fight: fight.fight_id and fight.fight_id != "nan",  # type: ignore[arg-type,return-value]
-                config_flag=WclConsts.SCRAPE_MISSING_FIGHT_IDS
+                config_flag=GlobalConfigs.SCRAPE_MISSING_FIGHT_IDS
             ),
             FilterCriterion(
                 condition=lambda fight: fight.outcome == WclColumnConsts.FIGHT_OUTCOME_KILL,
-                config_flag=WclConsts.SCRAPE_WIPES
+                config_flag=GlobalConfigs.SCRAPE_WIPES
             ),
             FilterCriterion(
-                condition=lambda fight: fight.duration_in_sec >= WclConsts.SHORT_FIGHT_THRESHOLD,
-                config_flag=WclConsts.SCRAPE_SHORT_FIGHTS
+                condition=lambda fight: fight.duration_in_sec >= GlobalConfigs.SHORT_FIGHT_THRESHHOLD_IN_SEC,
+                config_flag=GlobalConfigs.SCRAPE_SHORT_FIGHTS
             ),
             # Add more criteria here as needed
         ]

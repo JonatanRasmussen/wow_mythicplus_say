@@ -3,7 +3,9 @@ import re
 from bs4 import BeautifulSoup
 from typing import List, Dict
 
-from .config.consts_wcl import WclConsts, WclFight
+from .config.global_configs import GlobalConfigs
+from .config.class_wcl_fight import WclFight
+from .config.consts_file_paths import FilePathConsts
 from .config.consts_wcl_columns import WclColumnConsts
 from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
@@ -26,13 +28,13 @@ class WclFightpage:
     @staticmethod
     def scrape_fightpages():
         wcl_boss_id = ""  # This means 'All bosses'
-        log_guids = WclFightpage.read_log_guids(WclConsts.ZONE_ID, wcl_boss_id)
+        log_guids = WclFightpage.read_log_guids(GlobalConfigs.WCL_ZONE_ID, wcl_boss_id)
         WclFightpage.scrape_fightpage(log_guids)
 
 
     @staticmethod
     def read_log_guids(wcl_zone_id: str, wcl_boss_id: str) -> List[str]:
-        file_path = WclConsts.wcl_log_search_table_csv_path(wcl_zone_id, wcl_boss_id)
+        file_path = FilePathConsts.wcl_log_search_table_csv_path(wcl_zone_id, wcl_boss_id)
         df = pd.read_csv(file_path)
         log_guids = []
         for _, row in df.iterrows():
@@ -48,13 +50,13 @@ class WclFightpage:
             counter = 0
             for log_guid in log_guids:
                 counter += 1
-                if counter > WclConsts.FIGHTPAGE_TO_STOP_AT:
+                if counter > GlobalConfigs.WCL_FIGHTPAGE_TO_STOP_AT:
                     break
-                print(f"scraping log {log_guid} ({counter} of {WclConsts.FIGHTPAGE_TO_STOP_AT})")
+                print(f"scraping log {log_guid} ({counter} of {GlobalConfigs.WCL_FIGHTPAGE_TO_STOP_AT})")
 
-                file_path = WclConsts.wcl_log_fights_webcache_path(log_guid)
+                file_path = FilePathConsts.wcl_log_fights_webcache_path(log_guid)
                 trimmed_html_content = Utils.try_read_file(file_path)
-                if len(trimmed_html_content) == 0 or WclConsts.RESCRAPE_FIGHTPAGES:
+                if len(trimmed_html_content) == 0 or GlobalConfigs.WCL_FIGHTPAGES_RESCRAPE:
                     # Webscrape log instead of using the locally cached version
                     url = f"https://www.warcraftlogs.com/reports/{log_guid}#translate=true"
                     scraped_html = Utils.scrape_url_with_selenium(url, 10, driver)
@@ -79,7 +81,7 @@ class WclFightpage:
 
     @staticmethod
     def get_log_guids(wcl_zone_id: str, wcl_boss_id: str) -> List[str]:
-        csv_path = WclConsts.wcl_log_search_table_csv_path(wcl_zone_id, wcl_boss_id)
+        csv_path = FilePathConsts.wcl_log_search_table_csv_path(wcl_zone_id, wcl_boss_id)
         df = Utils.read_pandas_df(csv_path)
         if not df.empty:
             return df[WclColumnConsts.SEARCHPAGE_GUID].tolist()
@@ -92,7 +94,7 @@ class WclFightpage:
 
         # Iterate over each fight in fight_data and gather a list of each wcl_boss_id
         for fight in fight_data:
-            if WclConsts.ZONE_ID == WclZoneFactory.get_zone_id_from_boss_id(fight.wcl_boss_id):
+            if GlobalConfigs.WCL_ZONE_ID == WclZoneFactory.get_zone_id_from_boss_id(fight.wcl_boss_id):
                 if fight.wcl_boss_id not in wcl_boss_ids:
                     wcl_boss_ids[fight.wcl_boss_id] = []
                 wcl_boss_ids[fight.wcl_boss_id].append(fight)
@@ -102,14 +104,14 @@ class WclFightpage:
         for wcl_boss_id, fights in wcl_boss_ids.items():
             fight_dicts = [fight.__dict__ for fight in fights]
             df = pd.DataFrame(fight_dicts)
-            path = WclConsts.wcl_log_fights_csv_path(WclConsts.ZONE_ID, wcl_boss_id)
+            path = FilePathConsts.wcl_log_fights_csv_path(GlobalConfigs.WCL_ZONE_ID, wcl_boss_id)
             Utils.write_pandas_df(df, path)
             print(f"Fights CSV saved at {path}")
 
         # Create pandas DataFrame for all fights
         all_fight_dicts = [fight.__dict__ for fight in all_fights]
         all_df = pd.DataFrame(all_fight_dicts)
-        all_path = WclConsts.wcl_log_fights_csv_path(WclConsts.ZONE_ID, "")
+        all_path = FilePathConsts.wcl_log_fights_csv_path(GlobalConfigs.WCL_ZONE_ID, "")
         Utils.write_pandas_df(all_df, all_path)
         print(f"All fights CSV saved at {all_path}")
 

@@ -1,14 +1,11 @@
 import pandas as pd
 import re
-import csv
-from bs4 import BeautifulSoup, NavigableString, Tag
-from typing import List, Dict, Callable, NamedTuple
-from dataclasses import dataclass
-from selenium import webdriver
+from bs4 import BeautifulSoup
+from typing import List
 
-from .config.consts_wcl import WclConsts, WclFight, WclDeath
-from .config.consts_wcl_columns import WclColumnConsts
-from .config.wcl_zone_groups import WclZoneFactory
+from .config.consts_file_paths import FilePathConsts
+from .config.global_configs import GlobalConfigs
+from .config.class_wcl_fight import WclFight
 from src.utils import Utils
 
 class FormatWclEncounter:
@@ -59,7 +56,7 @@ class FormatWclEncounter:
         pass
 
     @classmethod
-    def parse_all(cls, fight: WclFight, fight_id: str, fight_info: str, setup: str, enemy_deaths: str, ability_casts: str, ally_deaths: str) -> None:
+    def parse_all(cls, fight: WclFight, fight_id: str, fight_info: str, setup: str, enemy_deaths: str, ability_casts: str, ally_deaths: str) -> 'FormatWclEncounter':
         wcl_encounter = FormatWclEncounter()
         wcl_encounter.parse_wcl_fight(fight)
         wcl_encounter.encounter_id = fight_id
@@ -69,6 +66,16 @@ class FormatWclEncounter:
         wcl_encounter.parse_ability_casts(ability_casts)
         wcl_encounter.parse_ally_deaths(ally_deaths)
         wcl_encounter.print_all_properties()
+        return wcl_encounter
+
+    @staticmethod
+    def write_encounters_to_csv(encounters: List['FormatWclEncounter']) -> None:
+        # Convert the list of dataclass objects to a list of dictionaries
+        encounters_dict_list = [encounter.__dict__ for encounter in encounters]
+        # Create a DataFrame from the list of dictionaries
+        df = pd.DataFrame(encounters_dict_list)
+        file_path = FilePathConsts.wcl_log_encounter_csv_path(GlobalConfigs.WCL_ZONE_ID)
+        Utils.write_pandas_df(df, file_path)
 
     def print_all_properties(self) -> None:
         properties = vars(self)
@@ -204,7 +211,10 @@ class FormatWclEncounter:
         death_data = []
 
         for row in rows:
-            name_of_player = row.find('span', class_='main-table-link').text.strip()
+            find_span = row.find('span', class_='main-table-link')
+            if not find_span:
+                continue
+            name_of_player = find_span.text.strip()
 
             killing_blow_td = row.find_all('td')[2]
             killing_blow_span = killing_blow_td.find('span', class_=re.compile('school-'))
@@ -243,41 +253,22 @@ class FormatWclEncounter:
             damage_taken = row.find('td', class_='main-table-number damage').text.strip()
             healing_received = row.find('td', class_='main-table-number healing').text.strip()
 
-            wcl_death = WclDeath(
-                name_of_player=name_of_player,
-                killing_blow_name=killing_blow_name,
-                killing_blow_id=killing_blow_id,  # type: ignore[arg-type]
-                over=over,
-                last_three_hits="",
-                hit_1_name=hit_1_name,
-                hit_1_id=hit_1_id,
-                hit_2_name=hit_2_name,
-                hit_2_id=hit_2_id,
-                hit_3_name=hit_3_name,
-                hit_3_id=hit_3_id,
-                damage_taken=damage_taken,
-                healing_received=healing_received
-            )
-            serialized_death_data = FormatWclEncounter.serialize_wcl_death(wcl_death)
+            properties = [
+                name_of_player,
+                killing_blow_name,
+                killing_blow_id,
+                over,
+                hit_1_name,
+                hit_1_id,
+                hit_2_name,
+                hit_2_id,
+                hit_3_name,
+                hit_3_id,
+                damage_taken,
+                healing_received,
+            ]
+            delimiter = '░'
+            serialized_death_data = delimiter.join(str(prop) for prop in properties)
             death_data.append(serialized_death_data)
 
         self.ally_deaths = str(death_data)
-
-    @staticmethod
-    def serialize_wcl_death(death: WclDeath) -> str:
-        properties = [
-            death.name_of_player,
-            death.killing_blow_name or '',
-            death.killing_blow_id or '',
-            death.over,
-            death.hit_1_name,
-            death.hit_1_id or '',
-            death.hit_2_name,
-            death.hit_2_id or '',
-            death.hit_3_name,
-            death.hit_3_id or '',
-            death.damage_taken,
-            death.healing_received
-        ]
-        delimiter = '░'
-        return delimiter.join(str(prop) for prop in properties)

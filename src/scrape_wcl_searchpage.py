@@ -3,7 +3,8 @@ from typing import List
 import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
 
-from .config.consts_wcl import WclConsts
+from .config.consts_file_paths import FilePathConsts
+from .config.global_configs import GlobalConfigs
 from .config.consts_wcl_columns import WclColumnConsts
 from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
@@ -47,7 +48,7 @@ class WclLogSearch:
 
         row_guid = WclColumnConsts.SEARCHPAGE_GUID
         for i, boss in enumerate(bosses):
-            file_path = WclConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, boss.wcl_boss_id)
+            file_path = FilePathConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, boss.wcl_boss_id)
             df = pd.read_csv(file_path)
             for _, row in df.iterrows():
                 guid = row[row_guid]
@@ -61,7 +62,7 @@ class WclLogSearch:
         for i, boss in enumerate(bosses):
             merged_df[boss.abbreviation] = merged_df[row_guid].map(lambda x: log_guids[x][i])
 
-        output_file = file_path = WclConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, "")
+        output_file = file_path = FilePathConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, "")
         merged_df.to_csv(output_file, index=False)
         print(f"Combined CSV saved as {output_file}")
 
@@ -104,7 +105,7 @@ class WclLogSearch:
         html_tables = []  # type: List[str]
         driver = Utils.create_selenium_webdriver()
         try:
-            page_to_stop_at = WclConsts.SEARCHPAGE_TO_STOP_AT
+            page_to_stop_at = GlobalConfigs.WCL_SEARCHPAGE_TO_STOP_AT
             self.scrape_progress_searchpage_number = 0
             for page in range(0, page_to_stop_at):
                 self.scrape_progress_searchpage_number += 1
@@ -123,11 +124,11 @@ class WclLogSearch:
         return html_tables
 
     def fetch_search_table(self, wcl_boss: WowEncounter) -> List[str]:
-        file_path = WclConsts.wcl_log_search_table_webcache_path(self.wcl_zone.wcl_zone_id, wcl_boss.wcl_boss_id)
+        file_path = FilePathConsts.wcl_log_search_table_webcache_path(self.wcl_zone.wcl_zone_id, wcl_boss.wcl_boss_id)
         serialized_html_tables = Utils.try_read_file(file_path)
         delimiter = "█"
 
-        if len(serialized_html_tables) != 0 and not WclConsts.RESCRAPE_SEARCHPAGES:
+        if len(serialized_html_tables) != 0 and not GlobalConfigs.WCL_SEARCHPAGES_RESCRAPE:
             return serialized_html_tables.split(delimiter)
 
         html_tables = self.scrape_search_table(wcl_boss)
@@ -161,7 +162,7 @@ class WclLogSearch:
 
             zone_id = self.wcl_zone.wcl_zone_id
             boss_id = wcl_boss.wcl_boss_id
-            file_path = WclConsts.wcl_log_search_table_csv_path(zone_id, boss_id)
+            file_path = FilePathConsts.wcl_log_search_table_csv_path(zone_id, boss_id)
             Utils.write_pandas_df(wcl_boss.df, file_path)
         self.merge_csvs()
 
