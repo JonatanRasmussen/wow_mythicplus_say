@@ -18,7 +18,7 @@ class WclZoneFactory:
                 ("60670", "10670",  "Grim Batol",                 "GB"),
                 ("62290", "12290",  "Mists of Tirna Scithe",      "MoTS"),
                 ("61822", "11822",  "Siege of Boralus",           "SoB"),
-                ("12662", "",       "The Dawnbreaker",            "Db"),
+                ("12662", "",       "Hallowfall",                 "Db"),
                 ("62286", "12286",  "The Necrotic Wake",          "NW"),
                 ("12652", "",       "The Stonevault",             "Sv"),
             ]
@@ -44,6 +44,13 @@ class WclZoneFactory:
         if wcl_zone_id in cls.WCL_ZONES:
             zone_data = cls.WCL_ZONES[wcl_zone_id]
             return [boss_data[0] for boss_data in zone_data[cls.BOSSES_KEY]]
+        return []
+
+    @classmethod
+    def get_boss_names_from_zone_id(cls, wcl_zone_id: str) -> List[str]:
+        if wcl_zone_id in cls.WCL_ZONES:
+            zone_data = cls.WCL_ZONES[wcl_zone_id]
+            return [boss_data[2] for boss_data in zone_data[cls.BOSSES_KEY]]
         return []
 
     @classmethod

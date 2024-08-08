@@ -20,6 +20,7 @@ class FilePathConsts:
     DATA_RAW_WCL_FIGHTPAGE= os.path.join(DATA_RAW, "wcl_fights")
     DATA_RAW_WCL_ENCOUNTER= os.path.join(DATA_RAW, "wcl_encounter")
 
+    FINAL_OUTPUT_SPELL_LIST = os.path.join(FINAL_OUTPUT, "spell_list")
     FINAL_OUTPUT_SPREADSHEET = os.path.join(FINAL_OUTPUT, "mythicplus_tww.xlsx")
 
     @staticmethod
@@ -60,3 +61,10 @@ class FilePathConsts:
     def wcl_log_encounter_csv_path(wcl_zone_id: str) -> str:
         file_name = f"log_encounter_{wcl_zone_id}.csv"
         return os.path.join(FilePathConsts.DATA_RAW_WCL_ENCOUNTER, file_name)
+
+    @staticmethod
+    def wcl_spell_list_csv_path(wcl_zone_id: str, wcl_encounter_name: str) -> str:
+        file_name = f"log_spell_list_{wcl_zone_id}_{wcl_encounter_name}.csv"
+        if not wcl_encounter_name:
+            file_name = f"log_spell_list_{wcl_zone_id}.csv"
+        return os.path.join(FilePathConsts.FINAL_OUTPUT_SPELL_LIST, file_name)

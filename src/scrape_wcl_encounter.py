@@ -3,7 +3,7 @@ import re
 from bs4 import BeautifulSoup, NavigableString, Tag
 from typing import List, Dict, Callable, NamedTuple
 from selenium import webdriver
-
+from selenium.webdriver.remote.webdriver import WebDriver
 from.scrape_wcl_fightpage import WclFight
 from.format_wcl_encounter import FormatWclEncounter
 from .config.consts_file_paths import FilePathConsts
@@ -88,7 +88,7 @@ class WclEncounter:
         FormatWclEncounter.write_encounters_to_csv(all_wcl_encounters)
 
     @staticmethod
-    def scrape_all_encounters_in_log(log_guid: str, encounters: List[WclFight], driver: webdriver.Chrome) -> List[FormatWclEncounter]:
+    def scrape_all_encounters_in_log(log_guid: str, encounters: List[WclFight], driver: WebDriver) -> List[FormatWclEncounter]:
         wcl_encounters = []  # type: List[FormatWclEncounter]
         scraped_fight_ids = []  # type: List[str]
         encounters_with_missing_fight_ids = []  # type: List[WclFight]
@@ -122,7 +122,7 @@ class WclEncounter:
 
 
     @staticmethod
-    def scrape_encounter(encounter: WclFight, fight_id: str, driver: webdriver.Chrome) -> FormatWclEncounter:
+    def scrape_encounter(encounter: WclFight, fight_id: str, driver: WebDriver) -> FormatWclEncounter:
         file_path = FilePathConsts.wcl_log_encounter_webcache_path(encounter.log_guid, fight_id)
         delimiter = "▓"
         concatenated_html = Utils.try_read_file(file_path)

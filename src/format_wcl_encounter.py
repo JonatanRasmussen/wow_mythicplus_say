@@ -99,6 +99,8 @@ class FormatWclEncounter:
         soup = BeautifulSoup(fight_info_html, 'html.parser')
         # Extract dungeon name
         self.encounter_name = soup.find('div', id='filter-fight-boss-text').text.strip().replace('<span class="sub-arrow">+</span>', '')  # type: ignore[union-attr]
+        # For some reason the above code puts a + at the end of the name, we want this removed
+        self.encounter_name = FormatWclEncounter.remove_plus_suffix(self.encounter_name)
         # Extract dungeon icon URL
         self.encounter_icon = str(soup.find('img', id='filter-fight-boss-icon')['src'])# type: ignore[index]
         # Extract level
@@ -272,3 +274,9 @@ class FormatWclEncounter:
             death_data.append(serialized_death_data)
 
         self.ally_deaths = str(death_data)
+
+    @staticmethod
+    def remove_plus_suffix(input_string: str) -> str:
+        if input_string.endswith('+'):
+            return input_string[:-1]
+        return input_string

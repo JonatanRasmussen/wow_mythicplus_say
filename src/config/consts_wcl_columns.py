@@ -28,3 +28,6 @@ class WclColumnConsts:
     # WclFight dataclass column values
     FIGHT_OUTCOME_KILL = "kill"
     FIGHT_OUTCOME_WIPE = "wipe"
+
+
+    # My custom names used in Encounter csv

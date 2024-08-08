@@ -5,7 +5,7 @@ from typing import List
 
 from .config.consts_file_paths import FilePathConsts
 from .config.global_configs import GlobalConfigs
-from .utils import Utils
+from src.utils import Utils
 
 
 class WowheadSpell:
@@ -19,6 +19,8 @@ class WowheadSpell:
     _ICON_ID_NOT_FOUND = "Icon ID Not Found"
     _SPELL_NAME_NOT_FOUND = "Name Not Found"
     _CAST_TIME_NOT_FOUND = "Cast Time Not Found"
+    _NPC_ID_NOT_FOUND = "NPC ID Not Found"
+    _NPC_NAME_NOT_FOUND = "NPC Name Not Found"
     _ZONE_ID_NOT_FOUND = "Zone ID Not Found"
     _ZONE_NAME_NOT_FOUND = "Zone Name Not Found"
 
@@ -35,6 +37,8 @@ class WowheadSpell:
         self.cast_time: str = self._parse_cast_time()
         self.cast_value_is_channeled: bool = self.cast_time == WowheadSpell._CHANNELED_CAST_VALUE
         self.cast_value_is_instant: bool = self.cast_time == WowheadSpell._INSTANT_CAST_VALUE
+        self.npc_id: int = self._parse_npc_id()
+        self.npc_name: str = self._parse_npc_name()
         self.zone_id: int = self._parse_zone_id()
         self.zone_page_source: str = self._load_page_source(self.zone_id, True)
         self.zone_page_source_is_valid: bool = self._page_source_is_code_200(self.zone_page_source)
@@ -136,25 +140,53 @@ class WowheadSpell:
         inner_end = "</td>"
         return self._scuffed_html_parser(value_row, inner_start, inner_end, default)
 
+    def _parse_npc_id(self) -> int:
+        html = self.page_source
+        if "Used by NPC" in html:
+            start = '"],"id":'
+            end = ","
+            default = WowheadSpell._NPC_ID_NOT_FOUND
+            npc_id_str = self._scuffed_html_parser(html, start, end, default)
+            if npc_id_str == WowheadSpell._NPC_ID_NOT_FOUND:
+                return WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE
+            try:
+                return int(npc_id_str)
+            except ValueError:
+                print(f"Warning: NPC ID {npc_id_str} for {self.spell_id} is not numeric.")
+            return WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE
+        return WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE
+
+    def _parse_npc_name(self) -> str:
+        html = self.page_source
+        default = WowheadSpell._NPC_NAME_NOT_FOUND
+        if "Used by NPC" in html:
+            start = '"displayName":"'
+            end = '",'
+            return self._scuffed_html_parser(html, start, end, default)
+        return default
+
     def _parse_zone_id(self) -> int:
         html = self.page_source
-        start = ',"location":['
-        end = "],"
-        default = WowheadSpell._ZONE_ID_NOT_FOUND
-        zone_id_str = self._scuffed_html_parser(html, start, end, default)
-        if zone_id_str == WowheadSpell._ZONE_ID_NOT_FOUND:
-            return WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE
-        try:
-            return int(zone_id_str)
-        except ValueError:
-            print(f"Warning: Zone ID {zone_id_str} for {self.spell_id} is not numeric.")
-            return int(default)
+        if "Used by NPC" in html:
+            start = ',"location":['
+            end = "],"
+            default = WowheadSpell._ZONE_ID_NOT_FOUND
+            zone_id_str = self._scuffed_html_parser(html, start, end, default)
+            if zone_id_str == WowheadSpell._ZONE_ID_NOT_FOUND:
+                return WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE
+            try:
+                return int(zone_id_str)
+            except ValueError:
+                print(f"Warning: Zone ID {zone_id_str} for {self.spell_id} is not numeric.")
+        return WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE
 
     def _parse_zone_name(self) -> str:
         html = self.zone_page_source
-        start = '},"name":"'
-        end = '",'
         default = WowheadSpell._ZONE_NAME_NOT_FOUND
-        if not self.zone_page_source_is_valid:
-            return default
-        return self._scuffed_html_parser(html, start, end, default)
+        if "Used by NPC" in html:
+            start = '},"name":"'
+            end = '",'
+            if not self.zone_page_source_is_valid:
+                return default
+            return self._scuffed_html_parser(html, start, end, default)
+        return default

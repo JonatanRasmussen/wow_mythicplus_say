@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -15,7 +16,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 class Utils:
 
     @staticmethod
-    def create_selenium_webdriver() -> webdriver.Chrome:
+    def create_selenium_webdriver() -> WebDriver:
         options = Options()
         options.add_argument('--disable-logging')
         options.add_argument("--log-level=3")
@@ -23,11 +24,11 @@ class Utils:
         return driver
 
     @staticmethod
-    def quit_selenium_webdriver(driver: webdriver.Chrome) -> None:
+    def quit_selenium_webdriver(driver: WebDriver) -> None:
         driver.quit()
 
     @staticmethod
-    def scrape_url_with_selenium(url: str, timeout_in_sec: int, driver: webdriver.Chrome) -> str:
+    def scrape_url_with_selenium(url: str, timeout_in_sec: int, driver: WebDriver) -> str:
         driver.get(url)
 
         # Ensure the page loads within the specified timeout
@@ -51,7 +52,7 @@ class Utils:
         return html_content
 
     @staticmethod
-    def scrape_url_but_await_id(url: str, timeout_in_sec: int, element_ids: List[str], driver: webdriver.Chrome) -> str:
+    def scrape_url_but_await_id(url: str, timeout_in_sec: int, element_ids: List[str], driver: WebDriver) -> str:
         driver.get(url)
 
         # Ensure the page loads within the specified timeout
