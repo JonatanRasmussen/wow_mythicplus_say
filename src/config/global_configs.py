@@ -7,7 +7,7 @@ class GlobalConfigs:
     WCL_ZONE_ID = WclZoneFactory.ZONE_ID_TWW_MYTHICPLUS_S1
 
     # External constants
-    WOWHEAD_PTR_VERSION = "ptr-2/"
+    WOWHEAD_PTR_VERSION = "beta/"
 
     # Other
     WCL_SEARCHPAGE_TO_STOP_AT = 20

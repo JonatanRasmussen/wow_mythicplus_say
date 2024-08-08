@@ -20,7 +20,7 @@ class FormatSpelllist:
             filtered_df = FormatSpelllist.filter_by_encounter_name(no_dupe_df, name)
             spell_df = FormatSpelllist.create_ability_dict(filtered_df)
             spell_df = FormatSpelllist.map_ally_deaths_to_spells(filtered_df, spell_df)
-            #added_npcs_df = FormatSpelllist.visit_wowhead(spell_df, name)
+            spell_df = FormatSpelllist.visit_wowhead(spell_df, name)
             file_path = FilePathConsts.wcl_spell_list_csv_path(GlobalConfigs.WCL_ZONE_ID, name)
             Utils.write_pandas_df(spell_df, file_path)
 
