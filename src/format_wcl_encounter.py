@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from bs4 import BeautifulSoup
-from typing import List
+from typing import List, Optional
 
 from .config.consts_file_paths import FilePathConsts
 from .config.global_configs import GlobalConfigs
@@ -21,7 +21,6 @@ class FormatWclEncounter:
     fight_duration_in_sec: int
     fight_wcl_boss_id: str
     fight_boss_text: str
-    fight_zone_name: str
     fight_boss_level: str
     fight_affix_icon: str
     fight_time: str
@@ -56,16 +55,18 @@ class FormatWclEncounter:
         pass
 
     @classmethod
-    def parse_all(cls, fight: WclFight, fight_id: str, fight_info: str, setup: str, enemy_deaths: str, ability_casts: str, ally_deaths: str) -> 'FormatWclEncounter':
+    def parse_all(cls, fight: WclFight, fight_id: str, fight_info: str, setup: str, enemy_deaths: str, ability_casts: str, ally_deaths: str) -> Optional['FormatWclEncounter']:
         wcl_encounter = FormatWclEncounter()
         wcl_encounter.parse_wcl_fight(fight)
         wcl_encounter.encounter_id = fight_id
-        wcl_encounter.parse_fight_info(fight_info)
+        successful = wcl_encounter.try_parse_fight_info(fight_info)
+        if not successful:
+            return None
         wcl_encounter.parse_setup(setup)
         wcl_encounter.parse_enemy_deaths(enemy_deaths)
         wcl_encounter.parse_ability_casts(ability_casts)
         wcl_encounter.parse_ally_deaths(ally_deaths)
-        wcl_encounter.print_all_properties()
+        #wcl_encounter.print_all_properties()
         return wcl_encounter
 
     @staticmethod
@@ -90,27 +91,38 @@ class FormatWclEncounter:
         self.fight_duration_in_sec = fight.duration_in_sec
         self.fight_wcl_boss_id = fight.wcl_boss_id
         self.fight_boss_text = fight.boss_text
-        self.fight_zone_name = fight.zone_name
         self.fight_boss_level = fight.boss_level
         self.fight_affix_icon = fight.affix_icon
         self.fight_time = fight.fight_time
 
-    def parse_fight_info(self, fight_info_html: str) -> None:
+    def try_parse_fight_info(self, fight_info_html: str) -> bool:
         soup = BeautifulSoup(fight_info_html, 'html.parser')
-        # Extract dungeon name
-        self.encounter_name = soup.find('div', id='filter-fight-boss-text').text.strip().replace('<span class="sub-arrow">+</span>', '')  # type: ignore[union-attr]
-        # For some reason the above code puts a + at the end of the name, we want this removed
-        self.encounter_name = FormatWclEncounter.remove_plus_suffix(self.encounter_name)
-        # Extract dungeon icon URL
-        self.encounter_icon = str(soup.find('img', id='filter-fight-boss-icon')['src'])# type: ignore[index]
-        # Extract level
-        self.encounter_level = soup.find('div', id='filter-fight-details-text').text.split('Level')[1].split()[0]  # type: ignore[union-attr]
-        # Extract affixes
-        self.encounter_affixes = str([img['title'] for img in soup.find_all('img', class_='affix-icon')])
-        # Extract duration
-        self.encounter_duration = soup.find('span', class_='fight-duration').text.strip('()') # type: ignore[union-attr]
-        # Extract time
-        self.encounter_time = soup.find('span', class_='fight-time').text.strip()  # type: ignore[union-attr]
+        if (
+            soup.find('div', id='filter-fight-boss-text') is None or
+            soup.find('img', id='filter-fight-boss-icon') is None or
+            soup.find('div', id='filter-fight-details-text') is None or
+            soup.find('span', class_='fight-duration') is None or
+            soup.find('span', class_='fight-time') is None
+        ):
+            return False
+        try:
+            # Extract dungeon name
+            self.encounter_name = soup.find('div', id='filter-fight-boss-text').text.strip().replace('<span class="sub-arrow">+</span>', '')  # type: ignore[union-attr]
+            # For some reason the above code puts a + at the end of the name, we want this removed
+            self.encounter_name = FormatWclEncounter.remove_plus_suffix(self.encounter_name)
+            # Extract dungeon icon URL
+            self.encounter_icon = str(soup.find('img', id='filter-fight-boss-icon')['src'])# type: ignore[index]
+            # Extract level
+            self.encounter_level = soup.find('div', id='filter-fight-details-text').text.split('Level')[1].split()[0]  # type: ignore[union-attr]
+            # Extract affixes
+            self.encounter_affixes = str([img['title'] for img in soup.find_all('img', class_='affix-icon')])
+            # Extract duration
+            self.encounter_duration = soup.find('span', class_='fight-duration').text.strip('()') # type: ignore[union-attr]
+            # Extract time
+            self.encounter_time = soup.find('span', class_='fight-time').text.strip()  # type: ignore[union-attr]
+        except IndexError:
+            return False
+        return True
 
     def parse_setup(self, setup_html):
         soup = BeautifulSoup(setup_html, 'html.parser')

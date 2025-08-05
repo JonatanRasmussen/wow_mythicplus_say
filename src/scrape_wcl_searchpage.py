@@ -10,11 +10,9 @@ from .config.wcl_zone_groups import WclZoneFactory
 from src.utils import Utils
 
 class WowEncounter:
-    def __init__(self, wcl_boss_id: str, icon_url: str, name: str, abbreviation: str):
+    def __init__(self, wcl_boss_id: str, boss_name: str):
         self.wcl_boss_id = wcl_boss_id
-        self.icon_url = wcl_boss_id if (icon_url == "") else icon_url
-        self.name = name
-        self.abbreviation = abbreviation
+        self.boss_name = boss_name
         self.serialized_html_table = ""
         self.df = pd.DataFrame()
 
@@ -27,15 +25,15 @@ class WclZone:
         self.wcl_zone_id = wcl_zone_id
         self.name = zone_data[WclZoneFactory.NAME_KEY]
         self.wcl_bosses = []  # type: List[WowEncounter]
-        for boss_id, icon_url, name, abbreviation in zone_data[WclZoneFactory.BOSSES_KEY]:
-            self.wcl_bosses.append(WowEncounter(boss_id, icon_url, name, abbreviation))
+        for boss_id, boss_name in zone_data[WclZoneFactory.BOSSES_KEY]:
+            self.wcl_bosses.append(WowEncounter(boss_id, boss_name))
 
 class WclLogSearch:
 
-    def __init__(self, wcl_zone: WclZone):
-        self.wcl_zone = wcl_zone
+    def __init__(self):
+        self.wcl_zone = WclZone(WclZoneFactory.ZONE_ID_TWW_MYTHICPLUS)
         self.scrape_progress_boss_number = 0
-        self.scrape_progress_total_bosses = len(wcl_zone.wcl_bosses)
+        self.scrape_progress_total_bosses = len(self.wcl_zone.wcl_bosses)
         self.scrape_progress_searchpage_number = 0
 
     def merge_csvs(self) -> None:
@@ -60,7 +58,7 @@ class WclLogSearch:
                     log_guids[guid][i] = 1
 
         for i, boss in enumerate(bosses):
-            merged_df[boss.abbreviation] = merged_df[row_guid].map(lambda x: log_guids[x][i])
+            merged_df[boss.boss_name] = merged_df[row_guid].map(lambda x: log_guids[x][i])
 
         output_file = file_path = FilePathConsts.wcl_log_search_table_csv_path(self.wcl_zone.wcl_zone_id, "")
         merged_df.to_csv(output_file, index=False)

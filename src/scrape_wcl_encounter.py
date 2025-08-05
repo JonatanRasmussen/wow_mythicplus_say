@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from bs4 import BeautifulSoup, NavigableString, Tag
-from typing import List, Dict, Callable, NamedTuple
+from typing import List, Dict, Callable, NamedTuple, Optional
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 from.scrape_wcl_fightpage import WclFight
@@ -57,7 +57,6 @@ class WclEncounter:
                 duration_in_sec=duration_in_sec,
                 wcl_boss_id=str(row[WclColumnConsts.FIGHT_WCL_BOSS_ID]),
                 boss_text=str(row[WclColumnConsts.FIGHT_BOSS_TEXT]),
-                zone_name=str(row[WclColumnConsts.FIGHT_ZONE_NAME]),
                 boss_level=str(row[WclColumnConsts.FIGHT_BOSS_LEVEL]),
                 affix_icon=str(row[WclColumnConsts.FIGHT_AFFIX_ICON]),
                 fight_time=str(row[WclColumnConsts.FIGHT_TIME])
@@ -81,7 +80,7 @@ class WclEncounter:
             encounters = WclEncounter.create_wcl_fight_instances(filtered_df)
             if not WclEncounter.is_there_something_to_scrape(encounters):
                 continue
-            print(f"scraping encounters for log {log_guid} ({log_counter} of {log_count_to_stop_at})")
+            print(f"scraping encounters for log {log_guid} ({log_counter} of {min(log_count_to_stop_at, len(logs_sorted_by_upload))})")
             wcl_encounters = WclEncounter.scrape_all_encounters_in_log(log_guid, encounters, driver)
             all_wcl_encounters.extend(wcl_encounters)
         Utils.quit_selenium_webdriver(driver)
@@ -105,7 +104,8 @@ class WclEncounter:
                     if GlobalConfigs.SCRAPE_SHORT_FIGHTS or encounter.duration_in_sec >= GlobalConfigs.SHORT_FIGHT_THRESHHOLD_IN_SEC:
                         print(f"scraping fight_id={encounter.fight_id} for log {log_guid} (fight {encounter.fight_id})")
                         wcl_encounter = WclEncounter.scrape_encounter(encounter, encounter.fight_id, driver)
-                        wcl_encounters.append(wcl_encounter)
+                        if wcl_encounter is not None:
+                            wcl_encounters.append(wcl_encounter)
         if GlobalConfigs.SCRAPE_MISSING_FIGHT_IDS:
             for i, encounter in enumerate(encounters):
                 fight_id = str(i + 1)
@@ -122,7 +122,7 @@ class WclEncounter:
 
 
     @staticmethod
-    def scrape_encounter(encounter: WclFight, fight_id: str, driver: WebDriver) -> FormatWclEncounter:
+    def scrape_encounter(encounter: WclFight, fight_id: str, driver: WebDriver) -> Optional[FormatWclEncounter]:
         file_path = FilePathConsts.wcl_log_encounter_webcache_path(encounter.log_guid, fight_id)
         delimiter = "▓"
         concatenated_html = Utils.try_read_file(file_path)
@@ -187,6 +187,7 @@ class WclEncounter:
             ability_casts_html = split_html[3]
             ally_deaths_html = split_html[4]
         return FormatWclEncounter.parse_all(encounter, fight_id, fight_info_html, setup_html, enemy_deaths_html, ability_casts_html, ally_deaths_html)
+
 
 
     @staticmethod
@@ -392,7 +393,7 @@ class WclEncounter:
         df['Last Three Hits'] = df['Last Three Hits'].str.replace(r'\n{2,}', '|', regex=True)
 
         # Print the first few rows
-        print(df.head())
+        #print(df.head())
         return df
 
     @staticmethod

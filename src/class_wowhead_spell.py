@@ -29,10 +29,10 @@ class WowheadSpell:
     _INSTANT_CAST_VALUE = "Instant"
 
     def __init__(self, spell_id: int):
+        self.spell_id: int = spell_id
         self.page_source: str = self._load_page_source(spell_id, False)
         self.page_source_is_valid: bool = self._page_source_is_code_200(self.page_source)
         self.spell_name: str = self._parse_spell_name()
-        self.spell_id: int = spell_id
         self.icon_id: int = self._parse_icon_id()
         self.cast_time: str = self._parse_cast_time()
         self.cast_value_is_channeled: bool = self.cast_time == WowheadSpell._CHANNELED_CAST_VALUE
@@ -46,14 +46,26 @@ class WowheadSpell:
         self.zone_name_was_found: bool = self.zone_name != WowheadSpell._ZONE_NAME_NOT_FOUND
 
     @staticmethod
-    def write_wowhead_spell_ids_to_csv(wowhead_spells: List['WowheadSpell']) -> None:
+    def is_valid_npc(retrieved_npc_name: str, retrieved_npc_id: str) -> bool:
+        return (retrieved_npc_name != WowheadSpell._NPC_NAME_NOT_FOUND and
+                retrieved_npc_id != WowheadSpell._GENERIC_NOT_FOUND_NUMERIC_VALUE)
+
+    @staticmethod
+    def write_wowhead_spell_ids_to_csv(wowhead_spells: List['WowheadSpell']) -> pd.DataFrame:
         # Convert the list of dataclass objects to a list of dictionaries
-        wowhead_spells_dict_list = [wowhead_spell.__dict__ for wowhead_spell in wowhead_spells]
+        exclude_attrs = ['page_source', 'zone_page_source']
+        wowhead_spells_dict_list = []
+        for spell in wowhead_spells:
+            spell_dict = spell.__dict__.copy()
+            for key in spell_dict:
+                if key in exclude_attrs:
+                    spell_dict[key] = ""
+            wowhead_spells_dict_list.append(spell_dict)
         # Create a DataFrame from the list of dictionaries
         df = pd.DataFrame(wowhead_spells_dict_list)
         file_path = FilePathConsts.wowhead_spell_ids_csv_path(GlobalConfigs.WCL_ZONE_ID)
         Utils.write_pandas_df(df, file_path)
-
+        return df
 
     def print_all_data(self) -> None:
         exclude_attrs = ['page_source', 'zone_page_source']
@@ -160,8 +172,8 @@ class WowheadSpell:
         html = self.page_source
         default = WowheadSpell._NPC_NAME_NOT_FOUND
         if "Used by NPC" in html:
-            start = '"displayName":"'
-            end = '",'
+            start = 'displayNames":["'
+            end = '"],'
             return self._scuffed_html_parser(html, start, end, default)
         return default
 

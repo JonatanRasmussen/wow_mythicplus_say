@@ -65,9 +65,8 @@ class FormatSpelllist:
     @staticmethod
     def validate_encounter_names(df: pd.DataFrame, expected_encounters: List[str]) -> None:
         for _, row in df.iterrows():
-            matching_names1 = row['fight_boss_text'] == row['fight_zone_name']
-            matching_names2 = row['fight_boss_text'] == row['encounter_name']
-            if (not matching_names1 or not matching_names2) and (row['fight_boss_text'] != 'nan' or row['fight_boss_text'] is not None):
+            matching_names = row['fight_boss_text'] == row['encounter_name']
+            if (not matching_names) and (row['fight_boss_text'] != 'nan' or row['fight_boss_text'] is not None):
                 print(f"BudoWarning: Mismatch in dungeon/fight name for {row['fight_boss_text']} != {row['fight_zone_name']} != {row['encounter_name']}")
             if row['encounter_name'] not in expected_encounters:
                 print(f"BudoWarning: Unexpected encounter {row['encounter_name']} encountered.")

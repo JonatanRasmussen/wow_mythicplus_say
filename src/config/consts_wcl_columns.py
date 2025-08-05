@@ -20,7 +20,6 @@ class WclColumnConsts:
     FIGHT_DURATION_IN_SEC = "duration_in_sec"
     FIGHT_WCL_BOSS_ID = "wcl_boss_id"
     FIGHT_BOSS_TEXT = "boss_text"
-    FIGHT_ZONE_NAME = "zone_name"
     FIGHT_BOSS_LEVEL = "boss_level"
     FIGHT_AFFIX_ICON = "affix_icon"
     FIGHT_TIME = "fight_time"

@@ -4,10 +4,10 @@ from .wcl_zone_groups import WclZoneFactory
 class GlobalConfigs:
 
     # Target data
-    WCL_ZONE_ID = WclZoneFactory.ZONE_ID_TWW_MYTHICPLUS_S1
+    WCL_ZONE_ID = WclZoneFactory.ZONE_ID_TWW_MYTHICPLUS
 
     # External constants
-    WOWHEAD_PTR_VERSION = "beta/"
+    WOWHEAD_PTR_VERSION = ""
 
     # Other
     WCL_SEARCHPAGE_TO_STOP_AT = 20
@@ -16,10 +16,10 @@ class GlobalConfigs:
     WCL_ENCOUNTER_TO_STOP_AT = 99999
 
     # Feature Flags
-    SCRAPE_WIPES = False
+    SCRAPE_WIPES = True
     SCRAPE_MISSING_FIGHT_IDS = False
     SCRAPE_SHORT_FIGHTS = False
-    SHORT_FIGHT_THRESHHOLD_IN_SEC = 30
+    SHORT_FIGHT_THRESHHOLD_IN_SEC = 600
 
     # Rescrape everything or use cached html if available
     FORCE_RESCRAPE_ALL = False

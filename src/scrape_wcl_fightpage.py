@@ -52,7 +52,7 @@ class WclFightpage:
                 counter += 1
                 if counter > GlobalConfigs.WCL_FIGHTPAGE_TO_STOP_AT:
                     break
-                print(f"scraping log {log_guid} ({counter} of {GlobalConfigs.WCL_FIGHTPAGE_TO_STOP_AT})")
+                print(f"scraping log {log_guid} ({counter} of {min(GlobalConfigs.WCL_FIGHTPAGE_TO_STOP_AT, len(log_guids))})")
 
                 file_path = FilePathConsts.wcl_log_fights_webcache_path(log_guid)
                 trimmed_html_content = Utils.try_read_file(file_path)
@@ -127,35 +127,26 @@ class WclFightpage:
             if not boss_caption:
                 continue
 
-            wcl_boss_id = ''
-            boss_text = ''
-            zone_name = ''
-
-            boss_icon = boss_caption.find('img', class_='fight-selection-boss-icon')
-            wcl_url_icon = WclFightpage.extract_wcl_boss_id_from_icon_url(boss_icon['src'] if boss_icon else '')
-            wcl_boss_id = WclZoneFactory.convert_icon_url_to_boss_id(wcl_url_icon)
-
             boss_text_span = boss_caption.find('span', class_='report-overview-boss-text')
             boss_text = boss_text_span.text.strip() if boss_text_span else ''
 
-            zone_name_span = boss_caption.find('span', class_='report-overview-zone-name')
-            zone_name = zone_name_span.text.strip() if zone_name_span else ''
+            wcl_boss_id = WclZoneFactory.get_boss_id_by_name(boss_text)
 
             fight_entries = box.find_all('a', class_='wipes-entry')
 
             if fight_entries:
                 for entry in fight_entries:
-                    fight = WclFightpage.parse_fight_entry(entry, log_guid, wcl_boss_id, boss_text, zone_name)
+                    fight = WclFightpage.parse_fight_entry(entry, log_guid, wcl_boss_id, boss_text)
                     fight_data.append(fight)
             else:
                 # If no fight entries, parse the boss data directly
-                fight = WclFightpage.parse_boss_data_entry(boss_caption, log_guid, wcl_boss_id, boss_text, zone_name)
+                fight = WclFightpage.parse_boss_data_entry(boss_caption, log_guid, wcl_boss_id, boss_text)
                 fight_data.append(fight)
 
         return fight_data
 
     @staticmethod
-    def parse_fight_entry(entry, log_guid, wcl_boss_id, boss_text, zone_name) -> WclFight:
+    def parse_fight_entry(entry, log_guid, wcl_boss_id, boss_text) -> WclFight:
         fight_id = ''
         outcome = ''
         duration = ''
@@ -196,14 +187,13 @@ class WclFightpage:
             duration_in_sec=duration_in_sec,
             wcl_boss_id=wcl_boss_id,
             boss_text=boss_text,
-            zone_name=zone_name,
             boss_level=boss_level,
             affix_icon=affix_icon,
             fight_time=fight_time
         )
 
     @staticmethod
-    def parse_boss_data_entry(boss_caption, log_guid, wcl_boss_id, boss_text, zone_name) -> WclFight:
+    def parse_boss_data_entry(boss_caption, log_guid, wcl_boss_id, boss_text) -> WclFight:
         fight_id = ''
         outcome = ''
         duration = ''
@@ -249,7 +239,6 @@ class WclFightpage:
             duration_in_sec=duration_in_sec,
             wcl_boss_id=wcl_boss_id,
             boss_text=boss_text,
-            zone_name=zone_name,
             boss_level=boss_level,
             affix_icon=affix_icon,
             fight_time=fight_time
@@ -269,15 +258,6 @@ class WclFightpage:
 
         start_pos += len(start)
         return html[start_pos:end_pos]
-
-    @staticmethod
-    def extract_wcl_boss_id_from_icon_url(url: str) -> str:
-        # Extract '42069' from 'https://assets.rpglogs.com/img/warcraft/bosses/42069-icon.jpg'
-        pattern = r'/(\d+)-icon\.jpg$'
-        match = re.search(pattern, url)
-        if match:
-            return match.group(1)
-        return "0"
 
     @staticmethod
     def convert_duration_to_seconds(duration: str) -> str:
