@@ -1,0 +1,498 @@
+This is a webscraping project that searches www.warcraftlogs.com for every public dungeon log uploaded on the site, with the goal being to generate summary statitics across a large sample size of dungeon runs (such as most deadly spells, average completion time, etc.)
+
+It also contains some old tools to scrape spell data from wowhead.com.
+
+**Unfortunately, the project no longer works due to www.warcraftlogs.com implementing "click the checkbox to confirm you are not a bot" checks when accessing specific logs.** This used to not exist back when I wrote this project, but for now, this entire project is retired and in a non-working state (unless you want to analyze some of the old data I scraped before the anti-bot implementation).
+
+The below is an example of the kind of data my code could generate. The percentages are average number of deaths to each ability per run.
+
+*Note: the data will be formatted wrong if you're displaying less than 145 characters per line, so be sure to read this is full width or fullscreen.*
+
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Ara-Kara, City of Echoes (194 runs) | Deathless: 1.1% | ≤1 Death: 5.6% | ≤2 Deaths: 22.2%
+Avg. Time (All): 0:30:04 | Avg. Time (<15): 0:29:43 | Avg. Time (16+): 0:30:41
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=58)  | FULLRUN(16+) (N=32)  | DISBAND(<15) (N=57)  | DISBAND(16+) (N=47)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Web Bolt             | Trilling Attendant.. | 105.2%               | 28.1%                | 84.2%                | 59.6%
+2.    | Locust Swarm         | N/A                  | 74.1%                | 21.9%                | 93.0%                | 40.4%
+3.    | Ceaseless Swarm      | Anub'zekt            | 60.3%                | 21.9%                | 50.9%                | 29.8%
+4.    | Revolting Volley     | Bloodstained Webmage | 55.2%                | 0.0%                 | 54.4%                | 42.6%
+5.    | Venomous Spit        | Engorged Crawler     | 43.1%                | 18.8%                | 49.1%                | 29.8%
+6.    | Gossamer Onslaught   | Avanoxx              | 39.7%                | 28.1%                | 59.6%                | 44.7%
+7.    | Charge               | Bloodworker","Off-.. | 36.2%                | 28.1%                | 50.9%                | 46.8%
+8.    | Gossamer Onslaught   | Avanoxx              | 34.5%                | 3.1%                 | 56.1%                | 46.8%
+9.    | Cultivated Poisons   | N/A                  | 31.0%                | 43.8%                | 0.0%                 | 8.5%
+10.   | Bleeding Jab         | Jabbing Flyer        | 31.0%                | 18.8%                | 47.4%                | 19.1%
+11.   | Alerting Shrill      | Avanoxx              | 29.3%                | 9.4%                 | 38.6%                | 48.9%
+12.   | Cosmic Singularity   | Ki'katal the Harve.. | 29.3%                | 28.1%                | 3.5%                 | 2.1%
+13.   | Venom Volley         | Blood Overseer       | 27.6%                | 31.2%                | 1.8%                 | 14.9%
+14.   | Erupting Webs        | Ki'katal the Harve.. | 25.9%                | 9.4%                 | 0.0%                 | 6.4%
+15.   | Erupting Webs        | Blood Overseer       | 24.1%                | 15.6%                | 10.5%                | 6.4%
+16.   | Impale               | Hulking Bloodguard   | 24.1%                | 9.4%                 | 10.5%                | 8.5%
+17.   | Web Spray            | Ixin                 | 19.0%                | 6.2%                 | 38.6%                | 21.3%
+18.   | Dashing Strike       | Winged Carrier       | 15.5%                | 53.1%                | 0.0%                 | 34.0%
+19.   | Burrow Charge        | Anub'zekt            | 12.1%                | 34.4%                | 5.3%                 | 4.3%
+20.   | Extraction Strike    | Bloodstained Assis.. | 12.1%                | 9.4%                 | 7.0%                 | 2.1%
+21.   | Silken Restraints    | Bloodstained Webmage | 10.3%                | 0.0%                 | 8.8%                 | 4.3%
+22.   | Resonant Barrage     | Trilling Attendant.. | 10.3%                | 3.1%                 | 19.3%                | 6.4%
+23.   | Poisonous Cloud      | Atik                 | 8.6%                 | 0.0%                 | 1.8%                 | 4.3%
+24.   | Cultivated Poisons   | N/A                  | 6.9%                 | 9.4%                 | 0.0%                 | 6.4%
+25.   | Vile Webbing         | N/A                  | 6.9%                 | 0.0%                 | 19.3%                | 17.0%
+26.   | Voracious Bite       | Avanoxx              | 6.9%                 | 0.0%                 | 21.1%                | 10.6%
+27.   | Poisonous Cloud      | Atik                 | 5.2%                 | 12.5%                | 8.8%                 | 8.5%
+28.   | Infestation          | Anub'zekt            | 5.2%                 | 6.2%                 | 7.0%                 | 4.3%
+29.   | Bloody Miasma        | N/A                  | 3.4%                 | 0.0%                 | 5.3%                 | 0.0%
+30.   | Grasping Blood       | Black Blood          | 3.4%                 | 0.0%                 | 0.0%                 | 0.0%
+31.   | Tainted Blood        | N/A                  | 1.7%                 | 0.0%                 | 0.0%                 | 6.4%
+32.   | Ambush               | Ravenous Crawler",.. | 1.7%                 | 3.1%                 | 3.5%                 | 4.3%
+33.   | Bursting Shot        | Stormwind City Guard | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+34.   | Voracious Bite       | Avanoxx              | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+35.   | Resonant Barrage     | Trilling Attendant.. | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+36.   | Alerting Shrill      | Avanoxx              | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+37.   | Locust Swarm         | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+38.   | Impale               | Hulking Bloodguard   | 0.0%                 | 0.0%                 | 3.5%                 | 6.4%
+39.   | Cauterize            | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 2.1%
+40.   | Anti-Magic Zone      | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+41.   | Erupting Webs        | Ki'katal the Harve.. | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+42.   | Araz's Ritual Forge  | N/A                  | 0.0%                 | 0.0%                 | 1.8%                 | 0.0%
+43.   | Alarm Shrill         | Hulking Bloodguard   | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+44.   | Poisonous Cloud      | Atik                 | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+45.   | Eye of the Swarm     | Anub'zekt            | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+46.   | Impale               | Hulking Bloodguard   | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+47.   | Composting           | Turnip Punching Bag  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+48.   | Burrow Charge        | Anub'zekt            | 0.0%                 | 0.0%                 | 1.8%                 | 2.1%
+49.   | Horrifying Shrill    | Ixin                 | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+50.   | Charge               | Bloodworker","Off-.. | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Eco-Dome Al'dani (501 runs) | Deathless: 3.8% | ≤1 Death: 12.5% | ≤2 Deaths: 24.0%
+Avg. Time (All): 0:29:00 | Avg. Time (<15): 0:28:19 | Avg. Time (16+): 0:30:34
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=145) | FULLRUN(16+) (N=63)  | DISBAND(<15) (N=113) | DISBAND(16+) (N=180)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Arcane Bolt          | N/A                  | 85.5%                | 55.6%                | 69.9%                | 51.1%
+2.    | Unstable Core        | N/A                  | 60.0%                | 61.9%                | 117.7%               | 157.8%
+3.    | Wounded Fate         | N/A                  | 53.1%                | 25.4%                | 23.0%                | 8.9%
+4.    | Eternal Weave        | N/A                  | 43.4%                | 17.5%                | 30.1%                | 7.2%
+5.    | Arcing Zap           | N/A                  | 38.6%                | 27.0%                | 105.3%               | 37.8%
+6.    | Warp                 | N/A                  | 35.9%                | 25.4%                | 32.7%                | 18.9%
+7.    | Erratic Ritual       | N/A                  | 33.8%                | 23.8%                | 14.2%                | 4.4%
+8.    | Binding Javelin      | N/A                  | 32.4%                | 50.8%                | 55.8%                | 59.4%
+9.    | Farstalker's Leap    | N/A                  | 28.3%                | 28.6%                | 34.5%                | 50.0%
+10.   | Warp Strike          | N/A                  | 26.9%                | 22.2%                | 32.7%                | 25.6%
+11.   | Echoes of Fate       | N/A                  | 22.8%                | 31.7%                | 15.9%                | 16.7%
+12.   | Gorging Smash        | N/A                  | 22.1%                | 12.7%                | 15.0%                | 6.7%
+13.   | Arcing Energy        | N/A                  | 20.0%                | 17.5%                | 15.9%                | 21.1%
+14.   | Toxic Regurgitation  | N/A                  | 17.9%                | 11.1%                | 63.7%                | 15.0%
+15.   | Dread of the Unknown | N/A                  | 17.2%                | 19.0%                | 10.6%                | 11.1%
+16.   | Feast                | N/A                  | 16.6%                | 6.3%                 | 30.1%                | 4.4%
+17.   | Whispers of Fate     | N/A                  | 13.1%                | 9.5%                 | 1.8%                 | 7.2%
+18.   | Arcane Overload      | N/A                  | 11.0%                | 6.3%                 | 15.9%                | 14.4%
+19.   | Splinters of Fate    | N/A                  | 10.3%                | 4.8%                 | 7.1%                 | 10.0%
+20.   | Burrowing Eruption   | N/A                  | 10.3%                | 14.3%                | 0.0%                 | 5.0%
+21.   | Arcane Burn          | N/A                  | 9.0%                 | 3.2%                 | 6.2%                 | 2.2%
+22.   | Digestive Spittle    | N/A                  | 8.3%                 | 1.6%                 | 10.6%                | 2.8%
+23.   | Arcane Slash         | N/A                  | 7.6%                 | 6.3%                 | 25.7%                | 18.9%
+24.   | Gorge                | N/A                  | 6.2%                 | 1.6%                 | 12.4%                | 2.2%
+25.   | Ceremonial Dagger    | N/A                  | 4.8%                 | 1.6%                 | 0.0%                 | 0.0%
+26.   | Overgorged Burst     | N/A                  | 4.1%                 | 3.2%                 | 29.2%                | 1.1%
+27.   | Devour               | N/A                  | 2.8%                 | 1.6%                 | 16.8%                | 1.1%
+28.   | Volatile Ejection    | N/A                  | 2.8%                 | 6.3%                 | 10.6%                | 7.8%
+29.   | Stinging Sandstorm   | N/A                  | 2.1%                 | 4.8%                 | 0.0%                 | 7.8%
+30.   | Thrash               | Shard of Halkias     | 2.1%                 | 0.0%                 | 14.2%                | 0.0%
+31.   | Gorging Smash        | N/A                  | 2.1%                 | 0.0%                 | 5.3%                 | 7.2%
+32.   | Shadowy Dissolution  | N/A                  | 1.4%                 | 0.0%                 | 0.0%                 | 1.1%
+33.   | Melee                | N/A                  | 1.4%                 | 0.0%                 | 0.0%                 | 0.0%
+34.   | Engorge              | N/A                  | 1.4%                 | 0.0%                 | 0.0%                 | 0.0%
+35.   | Warp Strike          | N/A                  | 1.4%                 | 3.2%                 | 17.7%                | 5.0%
+36.   | Gloom Bite           | N/A                  | 1.4%                 | 4.8%                 | 5.3%                 | 4.4%
+37.   | Burrow Charge        | Anub'zekt            | 0.7%                 | 1.6%                 | 0.0%                 | 0.0%
+38.   | Shadow Word: Death   | N/A                  | 0.7%                 | 0.0%                 | 0.0%                 | 0.0%
+39.   | Rift Claws           | N/A                  | 0.7%                 | 1.6%                 | 11.5%                | 8.9%
+40.   | Cauterize            | N/A                  | 0.7%                 | 0.0%                 | 0.0%                 | 1.1%
+41.   | Araz's Ritual Forge  | N/A                  | 0.7%                 | 0.0%                 | 5.3%                 | 1.1%
+42.   | Gluttonous Miasma    | N/A                  | 0.7%                 | 0.0%                 | 0.0%                 | 0.0%
+43.   | Rift Claws           | N/A                  | 0.7%                 | 0.0%                 | 6.2%                 | 1.1%
+44.   | Erratic Ritual       | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+45.   | Dark Prayer          | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+46.   | Phase Step           | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+47.   | Skyward Ascent       | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+48.   | Arcing Energy        | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+49.   | Vivify               | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+50.   | Embrace of K'aresh   | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Halls of Atonement (524 runs) | Deathless: 1.6% | ≤1 Death: 4.0% | ≤2 Deaths: 9.7%
+Avg. Time (All): 0:34:59 | Avg. Time (<15): 0:35:13 | Avg. Time (16+): 0:34:05
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=196) | FULLRUN(16+) (N=51)  | DISBAND(<15) (N=182) | DISBAND(16+) (N=95)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Pulse from Beyond    | Ghastly Parishioner  | 103.6%               | 66.7%                | 84.1%                | 66.3%
+2.    | Telekinetic Collis.. | N/A                  | 101.5%               | 33.3%                | 18.1%                | 2.1%
+3.    | Ritual of Woe        | Lord Chamberlain     | 101.0%               | 41.2%                | 53.3%                | 8.4%
+4.    | Erupting Torment     | N/A                  | 90.8%                | 100.0%               | 9.3%                 | 5.3%
+5.    | Wicked Bolt          | Depraved Obliterator | 63.8%                | 49.0%                | 159.9%               | 91.6%
+6.    | Unstable Anima       | N/A                  | 49.5%                | 21.6%                | 36.8%                | 22.1%
+7.    | Anima Fountain       | High Adjudicator A.. | 46.4%                | 31.4%                | 31.9%                | 16.8%
+8.    | Display of Power     | N/A                  | 43.9%                | 41.2%                | 13.7%                | 5.3%
+9.    | Display of Power     | N/A                  | 43.4%                | 17.6%                | 18.7%                | 6.3%
+10.   | Thrash               | Shard of Halkias     | 43.4%                | 11.8%                | 81.9%                | 54.7%
+11.   | Ankle Bite           | N/A                  | 42.3%                | 51.0%                | 50.5%                | 40.0%
+12.   | Ritual of Woe        | Lord Chamberlain     | 39.3%                | 3.9%                 | 13.7%                | 2.1%
+13.   | Shattered            | Echelon              | 37.8%                | 21.6%                | 39.0%                | 23.2%
+14.   | Hurl Glaive          | Stoneborn Eviscera.. | 37.8%                | 35.3%                | 44.5%                | 37.9%
+15.   | Anguish              | Inquisitor Sigar     | 35.2%                | 27.5%                | 13.7%                | 4.2%
+16.   | Crumbling Slam       | Halkias              | 31.6%                | 9.8%                 | 50.5%                | 31.6%
+17.   | Shoot                | Depraved Houndmaster | 31.1%                | 33.3%                | 36.8%                | 40.0%
+18.   | Blood Torrent        | Echelon              | 30.6%                | 13.7%                | 30.8%                | 9.5%
+19.   | Curse of Obliterat.. | N/A                  | 24.0%                | 11.8%                | 38.5%                | 16.8%
+20.   | Telekinetic Toss     | N/A                  | 22.4%                | 23.5%                | 2.2%                 | 0.0%
+21.   | Stone Fist           | N/A                  | 21.9%                | 9.8%                 | 22.5%                | 13.7%
+22.   | Sin Quake            | Shard of Halkias     | 20.9%                | 2.0%                 | 22.5%                | 18.9%
+23.   | Unleashed Suffering  | Lord Chamberlain     | 20.9%                | 15.7%                | 4.4%                 | 2.1%
+24.   | Gushing Wound        | N/A                  | 19.4%                | 2.0%                 | 29.7%                | 2.1%
+25.   | Powerful Swipe       | Stoneborn Slasher    | 15.8%                | 5.9%                 | 20.9%                | 14.7%
+26.   | Disrupting Screech   | N/A                  | 14.8%                | 13.7%                | 18.7%                | 20.0%
+27.   | Siphon Life          | Depraved Collector   | 12.8%                | 9.8%                 | 33.5%                | 15.8%
+28.   | Refracted Sinlight   | Halkias              | 12.2%                | 3.9%                 | 18.1%                | 16.8%
+29.   | Dispersed Sin        | N/A                  | 11.2%                | 7.8%                 | 2.7%                 | 1.1%
+30.   | Blood Torrent        | Echelon              | 11.2%                | 2.0%                 | 19.8%                | 7.4%
+31.   | Glass Shards         | Halkias              | 10.7%                | 3.9%                 | 12.1%                | 20.0%
+32.   | Telekinetic Onslau.. | Lord Chamberlain     | 10.7%                | 11.8%                | 2.7%                 | 5.3%
+33.   | Mortal Strike        | N/A                  | 9.7%                 | 2.0%                 | 19.2%                | 12.6%
+34.   | Turn to Stone        | N/A                  | 9.2%                 | 3.9%                 | 3.3%                 | 3.2%
+35.   | Volatile Transform.. | Undying Stonefiend   | 8.7%                 | 3.9%                 | 10.4%                | 8.4%
+36.   | Anima Bolt           | High Adjudicator A.. | 6.6%                 | 9.8%                 | 9.9%                 | 11.6%
+37.   | Rapid Fire           | Depraved Houndmaster | 5.1%                 | 0.0%                 | 4.4%                 | 0.0%
+38.   | Shadowy Dissolution  | N/A                  | 3.6%                 | 2.0%                 | 1.1%                 | 1.1%
+39.   | Heave Debris         | Halkias              | 3.1%                 | 3.9%                 | 9.9%                 | 9.5%
+40.   | Collect Sins         | Depraved Collector   | 2.6%                 | 0.0%                 | 1.6%                 | 0.0%
+41.   | Stone Shattering L.. | Echelon              | 2.0%                 | 5.9%                 | 3.8%                 | 1.1%
+42.   | Glaivestorm          | N/A                  | 1.5%                 | 3.9%                 | 6.0%                 | 8.4%
+43.   | Stigma of Pride      | Lord Chamberlain     | 1.5%                 | 3.9%                 | 1.1%                 | 0.0%
+44.   | Cauterize            | N/A                  | 1.0%                 | 0.0%                 | 0.0%                 | 1.1%
+45.   | Wicked Bolt          | Inquisitor Sigar     | 1.0%                 | 0.0%                 | 2.7%                 | 0.0%
+46.   | Araz's Ritual Forge  | N/A                  | 1.0%                 | 3.9%                 | 1.6%                 | 0.0%
+47.   | Time Dilation        | N/A                  | 1.0%                 | 0.0%                 | 0.0%                 | 0.0%
+48.   | Melee                | N/A                  | 0.5%                 | 0.0%                 | 0.0%                 | 0.0%
+49.   | Melee                | N/A                  | 0.5%                 | 0.0%                 | 2.7%                 | 0.0%
+50.   | Shadow Word: Death   | N/A                  | 0.5%                 | 0.0%                 | 0.0%                 | 0.0%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Operation: Floodgate (190 runs) | Deathless: 0.0% | ≤1 Death: 4.6% | ≤2 Deaths: 21.8%
+Avg. Time (All): 0:31:17 | Avg. Time (<15): 0:30:20 | Avg. Time (16+): 0:32:28
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=48)  | FULLRUN(16+) (N=39)  | DISBAND(<15) (N=44)  | DISBAND(16+) (N=59)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Jettison Kelp        | Disturbed Kelp       | 60.4%                | 74.4%                | 163.6%               | 23.7%
+2.    | Battery Discharge    | Darkfuse Jumpstarter | 39.6%                | 41.0%                | 6.8%                 | 22.0%
+3.    | Lightning Bolt       | Venture Co. Electr.. | 35.4%                | 15.4%                | 43.2%                | 10.2%
+4.    | Overcharge           | Venture Co. Electr.. | 33.3%                | 12.8%                | 34.1%                | 11.9%
+5.    | Harpoon              | Venture Co. Diver    | 31.2%                | 5.1%                 | 25.0%                | 13.6%
+6.    | R.P.G.G.             | Darkfuse Demolitio.. | 29.2%                | 7.7%                 | 11.4%                | 8.5%
+7.    | Surprise Inspection  | Darkfuse Inspector   | 25.0%                | 46.2%                | 31.8%                | 20.3%
+8.    | Seaforium Charge     | N/A                  | 20.8%                | 23.1%                | 31.8%                | 18.6%
+9.    | Turbo Charge         | Geezle Gigazap       | 18.8%                | 12.8%                | 9.1%                 | 8.5%
+10.   | Barreling Charge     | Bront                | 18.8%                | 23.1%                | 52.3%                | 52.5%
+11.   | Razorchoke Vines     | Swampface            | 18.8%                | 20.5%                | 18.2%                | 28.8%
+12.   | Doom Storm           | Darkfuse Mechadrone  | 18.8%                | 2.6%                 | 20.5%                | 18.6%
+13.   | Mudslide             | Swampface            | 18.8%                | 7.7%                 | 18.2%                | 5.1%
+14.   | Snipe                | Mechadrone Sniper    | 18.8%                | 15.4%                | 40.9%                | 20.3%
+15.   | Gigazap              | Geezle Gigazap       | 16.7%                | 15.4%                | 18.2%                | 8.5%
+16.   | Battery Bolt         | N/A                  | 16.7%                | 0.0%                 | 11.4%                | 0.0%
+17.   | Flamethrower         | Shreddinator 3000    | 14.6%                | 0.0%                 | 22.7%                | 28.8%
+18.   | Sparkslam            | Darkfuse Jumpstarter | 14.6%                | 23.1%                | 4.5%                 | 8.5%
+19.   | Crabsplosion         | Bombshell Crab       | 12.5%                | 7.7%                 | 31.8%                | 13.6%
+20.   | Nailed               | Venture Co. Archit.. | 12.5%                | 5.1%                 | 20.5%                | 18.6%
+21.   | B.B.B.F.G.           | Keeza Quickfuse      | 12.5%                | 2.6%                 | 2.3%                 | 18.6%
+22.   | Turbo Charge         | Geezle Gigazap       | 12.5%                | 2.6%                 | 2.3%                 | 0.0%
+23.   | Surveyed Ground      | Venture Co. Surveyor | 12.5%                | 2.6%                 | 11.4%                | 20.3%
+24.   | Sonic Boom           | Big M.O.M.M.A.       | 12.5%                | 7.7%                 | 25.0%                | 5.1%
+25.   | Thunder Punch        | Geezle Gigazap       | 10.4%                | 5.1%                 | 4.5%                 | 5.1%
+26.   | Kinetic Explosive .. | Keeza Quickfuse      | 10.4%                | 7.7%                 | 27.3%                | 16.9%
+27.   | Sonic Boom           | Big M.O.M.M.A.       | 10.4%                | 12.8%                | 27.3%                | 32.2%
+28.   | Rushing Tide         | N/A                  | 10.4%                | 2.6%                 | 18.2%                | 0.0%
+29.   | Surveying Beam       | Venture Co. Surveyor | 10.4%                | 0.0%                 | 15.9%                | 6.8%
+30.   | Shreddation Sawblade | N/A                  | 10.4%                | 12.8%                | 38.6%                | 20.3%
+31.   | Deflagration         | Ticking Time Bomb    | 8.3%                 | 5.1%                 | 6.8%                 | 25.4%
+32.   | Quick Shot           | Keeza Quickfuse      | 8.3%                 | 5.1%                 | 31.8%                | 54.2%
+33.   | Awaken the Swamp     | Swampface            | 8.3%                 | 2.6%                 | 2.3%                 | 3.4%
+34.   | EZ-Thro Dynamite III | Venture Co. Surveyor | 8.3%                 | 20.5%                | 18.2%                | 35.6%
+35.   | Weapons Stockpile .. | N/A                  | 6.2%                 | 0.0%                 | 0.0%                 | 0.0%
+36.   | Shrapnel             | N/A                  | 6.2%                 | 5.1%                 | 6.8%                 | 3.4%
+37.   | Turbo Bolt           | Geezle Gigazap       | 6.2%                 | 0.0%                 | 0.0%                 | 0.0%
+38.   | Shock Water          | N/A                  | 6.2%                 | 5.1%                 | 2.3%                 | 1.7%
+39.   | Pinch                | Bombshell Crab       | 6.2%                 | 7.7%                 | 11.4%                | 0.0%
+40.   | Trickshot            | Mechadrone Sniper    | 4.2%                 | 5.1%                 | 18.2%                | 10.2%
+41.   | Maximum Distortion   | Darkfuse Mechadrone  | 4.2%                 | 0.0%                 | 15.9%                | 6.8%
+42.   | Wind Up              | Loaderbot            | 4.2%                 | 5.1%                 | 4.5%                 | 3.4%
+43.   | Big Bada BOOM!       | Keeza Quickfuse      | 4.2%                 | 0.0%                 | 2.3%                 | 6.8%
+44.   | Kinetic Explosive .. | Keeza Quickfuse      | 4.2%                 | 2.6%                 | 11.4%                | 10.2%
+45.   | Warp Blood           | Darkfuse Bloodwarper | 4.2%                 | 0.0%                 | 15.9%                | 10.2%
+46.   | Jumpstart            | Big M.O.M.M.A.       | 2.1%                 | 2.6%                 | 20.5%                | 15.3%
+47.   | Leaping Spark        | Leaping Spark        | 2.1%                 | 0.0%                 | 0.0%                 | 1.7%
+48.   | Blood Blast          | Darkfuse Bloodwarper | 2.1%                 | 0.0%                 | 9.1%                 | 0.0%
+49.   | Black Blood Wound    | Darkfuse Soldier     | 2.1%                 | 0.0%                 | 6.8%                 | 5.1%
+50.   | Shoot                | Darkfuse Mechadrone  | 2.1%                 | 5.1%                 | 20.5%                | 22.0%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Priory of the Sacred Flame (131 runs) | Deathless: 6.6% | ≤1 Death: 14.8% | ≤2 Deaths: 23.0%
+Avg. Time (All): 0:31:02 | Avg. Time (<15): 0:30:31 | Avg. Time (16+): 0:31:56
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=39)  | FULLRUN(16+) (N=22)  | DISBAND(<15) (N=38)  | DISBAND(16+) (N=32)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Sacred Toll          | Ardent Paladin       | 92.3%                | 100.0%               | 73.7%                | 65.6%
+2.    | Fireball             | Fanatical Conjuror   | 87.2%                | 72.7%                | 94.7%                | 21.9%
+3.    | Purification         | Lightspawn           | 76.9%                | 31.8%                | 13.2%                | 28.1%
+4.    | Hammer of Purity     | Baron Braunpyke      | 35.9%                | 31.8%                | 2.6%                 | 3.1%
+5.    | Light Expulsion      | Risen Footman        | 33.3%                | 4.5%                 | 2.6%                 | 0.0%
+6.    | Holy Smite           | Devout Priest        | 25.6%                | 59.1%                | 44.7%                | 37.5%
+7.    | Fireball             | Taener Duelmal       | 25.6%                | 9.1%                 | 92.1%                | 62.5%
+8.    | Fireball Volley      | Risen Mage           | 23.1%                | 27.3%                | 10.5%                | 3.1%
+9.    | Shoot                | Fervent Sharpshooter | 20.5%                | 4.5%                 | 44.7%                | 50.0%
+10.   | Lunging Strike       | Sergeant Shaynemail  | 20.5%                | 13.6%                | 10.5%                | 12.5%
+11.   | Reflective Shield    | High Priest Aemya    | 17.9%                | 0.0%                 | 21.1%                | 3.1%
+12.   | Radiant Flame        | Sir Braunpyke        | 17.9%                | 13.6%                | 5.3%                 | 3.1%
+13.   | Grievous Rip         | War Lynx             | 17.9%                | 4.5%                 | 44.7%                | 31.2%
+14.   | Earthshattering Sp.. | N/A                  | 17.9%                | 13.6%                | 10.5%                | 12.5%
+15.   | Caltrops             | Fervent Sharpshooter | 15.4%                | 22.7%                | 21.1%                | 12.5%
+16.   | Earthshattering Sp.. | N/A                  | 15.4%                | 0.0%                 | 47.4%                | 25.0%
+17.   | Sacrificial Flame    | N/A                  | 15.4%                | 4.5%                 | 2.6%                 | 3.1%
+18.   | Inner Fire           | Prioress Murrpray    | 15.4%                | 13.6%                | 7.9%                 | 0.0%
+19.   | Impale               | Arathi Knight        | 15.4%                | 9.1%                 | 34.2%                | 28.1%
+20.   | Savage Mauling       | Captain Dailcry      | 12.8%                | 0.0%                 | 10.5%                | 9.4%
+21.   | Thunderclap          | Guard Captain Sule.. | 12.8%                | 22.7%                | 13.2%                | 9.4%
+22.   | Holy Radiance        | Elaena Emberlanz     | 12.8%                | 9.1%                 | 23.7%                | 18.8%
+23.   | Holy Smite           | Prioress Murrpray    | 12.8%                | 0.0%                 | 0.0%                 | 0.0%
+24.   | Sanctified Ground    | Prioress Murrpray    | 10.3%                | 22.7%                | 0.0%                 | 0.0%
+25.   | Heat Wave            | Forge Master Damian  | 7.7%                 | 18.2%                | 21.1%                | 28.1%
+26.   | Flamestrike          | Fanatical Conjuror   | 7.7%                 | 0.0%                 | 0.0%                 | 0.0%
+27.   | Holy Flame           | Prioress Murrpray    | 7.7%                 | 18.2%                | 0.0%                 | 0.0%
+28.   | Embrace the Light    | Prioress Murrpray    | 7.7%                 | 4.5%                 | 0.0%                 | 0.0%
+29.   | Disrupting Shout     | Arathi Knight        | 7.7%                 | 13.6%                | 21.1%                | 3.1%
+30.   | Pot Shot             | Fervent Sharpshooter | 5.1%                 | 4.5%                 | 34.2%                | 15.6%
+31.   | Sacrificial Pyre     | Baron Braunpyke      | 5.1%                 | 13.6%                | 5.3%                 | 0.0%
+32.   | Seal of Light's Fury | Ardent Paladin       | 5.1%                 | 0.0%                 | 2.6%                 | 6.2%
+33.   | Unleashed Pyre       | N/A                  | 5.1%                 | 0.0%                 | 0.0%                 | 21.9%
+34.   | Blinding Light       | Prioress Murrpray    | 5.1%                 | 4.5%                 | 0.0%                 | 0.0%
+35.   | Consecration         | Ardent Paladin       | 2.6%                 | 0.0%                 | 0.0%                 | 0.0%
+36.   | Hammer of Purity     | Baron Braunpyke      | 2.6%                 | 0.0%                 | 0.0%                 | 0.0%
+37.   | Molten Pool          | Forge Master Damian  | 2.6%                 | 4.5%                 | 5.3%                 | 3.1%
+38.   | Cauterize            | N/A                  | 2.6%                 | 0.0%                 | 0.0%                 | 0.0%
+39.   | Blazing Strike       | Sir Braunpyke        | 2.6%                 | 4.5%                 | 0.0%                 | 0.0%
+40.   | Pierce Armor         | Captain Dailcry      | 2.6%                 | 0.0%                 | 13.2%                | 25.0%
+41.   | Overwhelming Power   | N/A                  | 2.6%                 | 0.0%                 | 2.6%                 | 0.0%
+42.   | Castigator's Shield  | Baron Braunpyke      | 2.6%                 | 0.0%                 | 0.0%                 | 0.0%
+43.   | Castigator's Deton.. | N/A                  | 2.6%                 | 9.1%                 | 0.0%                 | 0.0%
+44.   | Battle Cry           | Captain Dailcry      | 2.6%                 | 0.0%                 | 10.5%                | 9.4%
+45.   | Molten Pool          | Forge Master Damian  | 2.6%                 | 9.1%                 | 5.3%                 | 3.1%
+46.   | Castigator's Shield  | Baron Braunpyke      | 2.6%                 | 0.0%                 | 10.5%                | 3.1%
+47.   | Consecration         | Ardent Paladin       | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+48.   | Holy Flame           | Prioress Murrpray    | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+49.   | Sacrificial Pyre     | Baron Braunpyke      | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+50.   | Bound by Fate        | Captain Dailcry      | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Tazavesh: So'leah's Gambit (306 runs) | Deathless: 0.6% | ≤1 Death: 6.4% | ≤2 Deaths: 12.8%
+Avg. Time (All): 0:28:56 | Avg. Time (<15): 0:27:59 | Avg. Time (16+): 0:30:27
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=96)  | FULLRUN(16+) (N=60)  | DISBAND(<15) (N=83)  | DISBAND(16+) (N=67)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Energy Fragmentation | So'leah              | 143.8%               | 65.0%                | 37.3%                | 16.4%
+2.    | Unstable Rift        | Focused Ritualist    | 129.2%               | 90.0%                | 56.6%                | 7.5%
+3.    | Hyperlight Jolt      | So'leah              | 94.8%                | 31.7%                | 33.7%                | 31.3%
+4.    | Collapsing Energy    | So'leah              | 86.5%                | 48.3%                | 22.9%                | 13.4%
+5.    | Waterbolt            | Murkbrine Fishmancer | 58.3%                | 65.0%                | 116.9%               | 125.4%
+6.    | Temporal Detonation  | N/A                  | 56.2%                | 78.3%                | 61.4%                | 52.2%
+7.    | Cannon Barrage       | N/A                  | 56.2%                | 98.3%                | 60.2%                | 16.4%
+8.    | Purged by Fire       | Purged by Fire Sta.. | 54.2%                | 41.7%                | 71.1%                | 62.7%
+9.    | Time Bomb            | N/A                  | 36.5%                | 35.0%                | 48.2%                | 19.4%
+10.   | Exploding Pufferfish | N/A                  | 31.2%                | 11.7%                | 39.8%                | 26.9%
+11.   | Drifting Star        | Adorned Starseer     | 30.2%                | 48.3%                | 12.0%                | 13.4%
+12.   | Pulse                | Wandering Pulsar     | 30.2%                | 30.0%                | 13.3%                | 7.5%
+13.   | Sword Toss           | Corsair Officer      | 26.0%                | 20.0%                | 28.9%                | 28.4%
+14.   | Anchor Shot          | Hourglass Cannon     | 18.8%                | 26.7%                | 21.7%                | 14.9%
+15.   | Hyperlight Nova      | So'leah              | 18.8%                | 3.3%                 | 0.0%                 | 7.5%
+16.   | Infinite Breath      | Timecap'n Hooktail   | 18.8%                | 13.3%                | 27.7%                | 9.0%
+17.   | Burning Tar          | Hourglass Cannon     | 18.8%                | 13.3%                | 28.9%                | 4.5%
+18.   | Charged Pulse        | Stormforged Guardian | 15.6%                | 21.7%                | 18.1%                | 16.4%
+19.   | Brackish Bolt        | Hourglass Tidesage   | 11.5%                | 0.0%                 | 20.5%                | 3.0%
+20.   | Shuriken Blitz       | So' Cartel Assassin  | 11.5%                | 3.3%                 | 4.8%                 | 0.0%
+21.   | Purifying Burst      | Hylbrande            | 11.5%                | 18.3%                | 9.6%                 | 32.8%
+22.   | Purging Field        | Hylbrande            | 10.4%                | 15.0%                | 26.5%                | 50.7%
+23.   | Sanitizing Field     | Hylbrande            | 9.4%                 | 0.0%                 | 31.3%                | 9.0%
+24.   | Hyperlight Bolt      | Support Officer      | 7.3%                 | 8.3%                 | 4.8%                 | 0.0%
+25.   | Tidal Stomp          | Coastwalker Goliath  | 6.2%                 | 15.0%                | 16.9%                | 25.4%
+26.   | Tidal Burst          | Hourglass Tidesage   | 6.2%                 | 3.3%                 | 7.2%                 | 1.5%
+27.   | Hyperlight Spark     | So'leah              | 5.2%                 | 0.0%                 | 0.0%                 | 0.0%
+28.   | Melee                | N/A                  | 3.1%                 | 0.0%                 | 1.2%                 | 0.0%
+29.   | Energy Slash         | Devoted Accomplice   | 3.1%                 | 0.0%                 | 0.0%                 | 0.0%
+30.   | Titanic Crash        | Hylbrande            | 2.1%                 | 3.3%                 | 3.6%                 | 7.5%
+31.   | Shadowy Dissolution  | N/A                  | 2.1%                 | 0.0%                 | 0.0%                 | 0.0%
+32.   | Shellcracker         | Murkbrine Shellcru.. | 2.1%                 | 0.0%                 | 10.8%                | 6.0%
+33.   | Crackle              | Stormforged Guardian | 1.0%                 | 0.0%                 | 2.4%                 | 6.0%
+34.   | Shearing Swings      | Hylbrande            | 1.0%                 | 0.0%                 | 2.4%                 | 7.5%
+35.   | Set Fire to the Pain | N/A                  | 1.0%                 | 0.0%                 | 0.0%                 | 0.0%
+36.   | Araz's Ritual Forge  | N/A                  | 1.0%                 | 0.0%                 | 1.2%                 | 0.0%
+37.   | Bypass Code: Morke   | N/A                  | 0.0%                 | 0.0%                 | 1.2%                 | 0.0%
+38.   | Cry of Mrrggllrrgg   | Murkbrine Shellcru.. | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+39.   | Set Keystone Level.. | N/A                  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+40.   | Power Overwhelming   | So'leah              | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+41.   | Crackle              | Stormforged Guardian | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+42.   | Keeper's Protection  | Vault Purifier       | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+43.   | Energy Fragmentation | Progenitor Relic     | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+44.   | Fish Invigoration    | Murkbrine Wavejumper | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+45.   | Xal'atath's Bargai.. | Xal'atath            | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+46.   | Empowered Defense    | Vault Purifier       | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+47.   | Shearing Swings      | Hylbrande            | 0.0%                 | 1.7%                 | 6.0%                 | 20.9%
+48.   | Shearing Swings      | Hylbrande            | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+49.   | Bursting Shot        | Stormwind City Guard | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+50.   | Purged by Fire       | Titanic Defense Tu.. | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: Tazavesh: Streets of Wonder (342 runs) | Deathless: 3.7% | ≤1 Death: 6.0% | ≤2 Deaths: 9.7%
+Avg. Time (All): 0:34:37 | Avg. Time (<15): 0:35:18 | Avg. Time (16+): 0:32:28
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=102) | FULLRUN(16+) (N=32)  | DISBAND(<15) (N=105) | DISBAND(16+) (N=103)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Final Warning        | N/A                  | 116.7%               | 87.5%                | 41.0%                | 35.9%
+2.    | Shuri                | So'azmi              | 103.9%               | 53.1%                | 8.6%                 | 3.9%
+3.    | Unstable Explosion   | Unstable Goods       | 77.5%                | 9.4%                 | 52.4%                | 24.3%
+4.    | Shock Mines          | Commander Zo'far     | 72.5%                | 18.8%                | 19.0%                | 2.9%
+5.    | Rotten Food          | Unruly Patron        | 71.6%                | 93.8%                | 41.9%                | 25.2%
+6.    | Whirling Annihilat.. | Venza Goldfuse       | 41.2%                | 12.5%                | 18.1%                | 18.4%
+7.    | Beam Splicer         | Beam Splicer         | 38.2%                | 15.6%                | 73.3%                | 31.1%
+8.    | Anima Detonation     | Achillite            | 37.3%                | 15.6%                | 26.7%                | 40.8%
+9.    | Money Order          | P.O.S.T. Master      | 31.4%                | 9.4%                 | 17.1%                | 13.6%
+10.   | Menacing Shout       | Zo'gron              | 30.4%                | 9.4%                 | 27.6%                | 14.6%
+11.   | Interrogation        | Zo'phex              | 30.4%                | 18.8%                | 44.8%                | 19.4%
+12.   | Phase Slash          | N/A                  | 28.4%                | 18.8%                | 0.0%                 | 0.0%
+13.   | Fan Mail             | P.O.S.T. Master      | 24.5%                | 0.0%                 | 10.5%                | 2.9%
+14.   | Spilled Liquids      | Mailroom Portal      | 23.5%                | 0.0%                 | 12.4%                | 13.6%
+15.   | Grand Consumption    | Alcruux              | 22.5%                | 15.6%                | 35.2%                | 52.4%
+16.   | Junk Mail            | Overloaded Maileme.. | 22.5%                | 25.0%                | 6.7%                 | 14.6%
+17.   | Static Mace          | Bazaar Strongarm     | 22.5%                | 0.0%                 | 10.5%                | 10.7%
+18.   | Purification         | Lightspawn           | 15.7%                | 12.5%                | 16.2%                | 23.3%
+19.   | Shocklight Barrier   | N/A                  | 15.7%                | 0.0%                 | 1.9%                 | 2.9%
+20.   | Security Slam        | Oasis Security       | 14.7%                | 0.0%                 | 4.8%                 | 2.9%
+21.   | Quelling Strike      | Market Peacekeeper   | 14.7%                | 12.5%                | 6.7%                 | 13.6%
+22.   | Alchemical Residue   | Mailroom Portal      | 13.7%                | 6.2%                 | 11.4%                | 1.9%
+23.   | Power Kick           | Commander Zo'far     | 13.7%                | 3.1%                 | 1.9%                 | 1.9%
+24.   | Scintillate          | Veteran Sparkcaster  | 11.8%                | 3.1%                 | 16.2%                | 8.7%
+25.   | Refraction Shield    | N/A                  | 11.8%                | 0.0%                 | 8.6%                 | 2.9%
+26.   | Frantic Rip          | Frenzied Nightclaw   | 11.8%                | 0.0%                 | 9.5%                 | 26.2%
+27.   | Energy Blade         | So'azmi              | 11.8%                | 0.0%                 | 1.0%                 | 0.0%
+28.   | Glyph of Restraint   | Interrogation Spec.. | 9.8%                 | 3.1%                 | 14.3%                | 9.7%
+29.   | Throw Drink          | Brawling Patron      | 9.8%                 | 15.6%                | 4.8%                 | 4.9%
+30.   | Crowd Control        | Zo'gron              | 9.8%                 | 0.0%                 | 2.9%                 | 1.0%
+31.   | Double Technique     | N/A                  | 9.8%                 | 0.0%                 | 0.0%                 | 0.0%
+32.   | Bounced!             | N/A                  | 8.8%                 | 6.2%                 | 20.0%                | 5.8%
+33.   | Venting Concussion   | N/A                  | 7.8%                 | 3.1%                 | 8.6%                 | 8.7%
+34.   | Charged Slash        | N/A                  | 6.9%                 | 0.0%                 | 4.8%                 | 2.9%
+35.   | Proxy Strike         | Armored Overseer     | 6.9%                 | 0.0%                 | 14.3%                | 9.7%
+36.   | Energy Blade         | So'azmi              | 5.9%                 | 6.2%                 | 0.0%                 | 0.0%
+37.   | Empowered Glyph of.. | Portalmancer Zo'ho.. | 5.9%                 | 0.0%                 | 3.8%                 | 2.9%
+38.   | Grip of Hunger       | Alcruux              | 5.9%                 | 0.0%                 | 4.8%                 | 10.7%
+39.   | Containment Cell     | Zo'phex              | 5.9%                 | 0.0%                 | 11.4%                | 1.9%
+40.   | Gluttonous Feast     | Alcruux              | 5.9%                 | 0.0%                 | 6.7%                 | 5.8%
+41.   | Purification Proto.. | Achillite            | 4.9%                 | 0.0%                 | 3.8%                 | 6.8%
+42.   | Force Multiplier     | N/A                  | 4.9%                 | 3.1%                 | 7.6%                 | 3.9%
+43.   | Radiant Pulse        | Gatewarden Zo'mazz   | 4.9%                 | 0.0%                 | 8.6%                 | 4.9%
+44.   | Hyperlight Bolt      | Disruptive Patron    | 4.9%                 | 0.0%                 | 4.8%                 | 2.9%
+45.   | Hyperlight Bolt      | Cartel Wiseguy       | 3.9%                 | 0.0%                 | 8.6%                 | 10.7%
+46.   | Hyperlight Salvo     | Veteran Sparkcaster  | 3.9%                 | 3.1%                 | 8.6%                 | 3.9%
+47.   | Disruption Grenade   | Customs Security     | 2.9%                 | 6.2%                 | 11.4%                | 3.9%
+48.   | Hard Light Baton     | Customs Security     | 2.9%                 | 0.0%                 | 9.5%                 | 1.0%
+49.   | Security Slam        | Zo'gron              | 2.9%                 | 9.4%                 | 1.0%                 | 2.9%
+50.   | Hyperlight Bomb      | Cartel Smuggler      | 2.9%                 | 0.0%                 | 3.8%                 | 3.9%
+
+================================================================================================================================================
+ BOSS ENCOUNTER ANALYSIS: The Dawnbreaker (220 runs) | Deathless: 0.0% | ≤1 Death: 5.2% | ≤2 Deaths: 16.7%
+Avg. Time (All): 0:29:30 | Avg. Time (<15): 0:28:49 | Avg. Time (16+): 0:30:22
+================================================================================================================================================
+
+--- Top 50 Most Deadly Spells (Deaths per Run) ---
+Ranked by Deaths/Run for Full Clears in Levels 10-15.
+------------------------------------------------------------------------------------------------------------------------------------------------
+Rank  | Spell Name           | NPC Name             | FULLRUN(<15) (N=54)  | FULLRUN(16+) (N=42)  | DISBAND(<15) (N=50)  | DISBAND(16+) (N=74)
+------------------------------------------------------------------------------------------------------------------------------------------------
+1.    | Black Edge           | Nightfall Tactician  | 57.4%                | 54.8%                | 30.0%                | 25.7%
+2.    | Tormenting Beam      | Nightfall Darkcaster | 44.4%                | 7.1%                 | 88.0%                | 60.8%
+3.    | Shadowy Decay        | Ascendant Vis'coxria | 42.6%                | 28.6%                | 38.0%                | 21.6%
+4.    | Tormenting Ray       | Nightfall Ritualist  | 31.5%                | 9.5%                 | 44.0%                | 36.5%
+5.    | Tormenting Eruption  | Nightfall Dark Arc.. | 29.6%                | 14.3%                | 2.0%                 | 2.7%
+6.    | Obsidian Beam        | Speaker Shadowcrown  | 27.8%                | 16.7%                | 62.0%                | 35.1%
+7.    | Stygian Seed         | Nightfall Ritualist  | 27.8%                | 4.8%                 | 8.0%                 | 13.5%
+8.    | Night Bolt           | Nightfall Dark Arc.. | 27.8%                | 23.8%                | 64.0%                | 47.3%
+9.    | Black Hail           | Manifested Shadow    | 27.8%                | 14.3%                | 18.0%                | 16.2%
+10.   | Dark Orb             | Deathscreamer Iken.. | 25.9%                | 14.3%                | 32.0%                | 12.2%
+11.   | Tormenting Eruption  | Nightfall Dark Arc.. | 24.1%                | 16.7%                | 10.0%                | 6.8%
+12.   | Abyssal Rot          | Manifested Shadow    | 24.1%                | 11.9%                | 30.0%                | 32.4%
+13.   | Acid Pool            | N/A                  | 22.2%                | 2.4%                 | 2.0%                 | 5.4%
+14.   | Ensnaring Shadows    | Nightfall Shadowmage | 22.2%                | 2.4%                 | 16.0%                | 13.5%
+15.   | Dark Orb             | Deathscreamer Iken.. | 20.4%                | 7.1%                 | 46.0%                | 17.6%
+16.   | Dark Scars           | Deathscreamer Iken.. | 18.5%                | 0.0%                 | 10.0%                | 6.8%
+17.   | Tainted Slash        | Nightfall Commander  | 18.5%                | 9.5%                 | 24.0%                | 14.9%
+18.   | Abyssal Blast        | Ascendant Vis'coxria | 16.7%                | 11.9%                | 44.0%                | 32.4%
+19.   | Bursting Cocoon      | Sureki Webmage","A.. | 13.0%                | 7.1%                 | 8.0%                 | 13.5%
+20.   | Lingering Erosion    | Rasha'nan            | 13.0%                | 0.0%                 | 6.0%                 | 16.2%
+21.   | Terrifying Slam      | Anub'ikkaj           | 13.0%                | 21.4%                | 4.0%                 | 6.8%
+22.   | Collapsing Night     | Speaker Shadowcrown  | 13.0%                | 9.5%                 | 18.0%                | 31.1%
+23.   | Congealed Darkness   | N/A                  | 11.1%                | 7.1%                 | 12.0%                | 9.5%
+24.   | Tacky Burst          | Rasha'nan            | 11.1%                | 0.0%                 | 2.0%                 | 10.8%
+25.   | Encroaching Shadows  | N/A                  | 11.1%                | 4.8%                 | 2.0%                 | 13.5%
+26.   | Spinneret's Websnap  | N/A                  | 9.3%                 | 11.9%                | 2.0%                 | 1.4%
+27.   | Shadow Shroud        | Speaker Shadowcrown  | 9.3%                 | 0.0%                 | 12.0%                | 12.2%
+28.   | Arathi Bombs         | Rasha'nan            | 9.3%                 | 4.8%                 | 0.0%                 | 0.0%
+29.   | Dark Scars           | Anub'ikkaj           | 9.3%                 | 0.0%                 | 6.0%                 | 2.7%
+30.   | Shadowy Decay        | Ascendant Vis'coxria | 7.4%                 | 2.4%                 | 22.0%                | 24.3%
+31.   | Shadowblades         | N/A                  | 7.4%                 | 0.0%                 | 16.0%                | 10.8%
+32.   | Expel Webs           | Rasha'nan            | 5.6%                 | 2.4%                 | 0.0%                 | 5.4%
+33.   | Sparking Arathi Bomb | Arathi Bomb          | 5.6%                 | 2.4%                 | 2.0%                 | 0.0%
+34.   | Sticky Webs          | Rasha'nan            | 3.7%                 | 2.4%                 | 0.0%                 | 0.0%
+35.   | Corrosion            | Rasha'nan            | 3.7%                 | 0.0%                 | 0.0%                 | 0.0%
+36.   | Acidic Stupor        | Rasha'nan            | 3.7%                 | 2.4%                 | 2.0%                 | 0.0%
+37.   | Burning Shadows      | Speaker Shadowcrown  | 3.7%                 | 0.0%                 | 20.0%                | 16.2%
+38.   | Terrifying Slam      | Ixkreten the Unbre.. | 1.9%                 | 0.0%                 | 0.0%                 | 4.1%
+39.   | Obsidian Beam        | Speaker Shadowcrown  | 1.9%                 | 0.0%                 | 6.0%                 | 16.2%
+40.   | Darkness Comes       | Speaker Shadowcrown  | 1.9%                 | 0.0%                 | 2.0%                 | 2.7%
+41.   | Spinneret's Strands  | Spinnerette's Stra.. | 1.9%                 | 4.8%                 | 0.0%                 | 0.0%
+42.   | Terrifying Slam      | Anub'ikkaj           | 1.9%                 | 0.0%                 | 12.0%                | 1.4%
+43.   | Cauterize            | N/A                  | 1.9%                 | 0.0%                 | 4.0%                 | 0.0%
+44.   | Stygian Seed         | Nightfall Ritualist  | 1.9%                 | 0.0%                 | 4.0%                 | 0.0%
+45.   | Shadow Expulsion     | N/A                  | 0.0%                 | 4.8%                 | 10.0%                | 2.7%
+46.   | Shadowy Decay        | Ascendant Vis'coxria | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+47.   | Tormenting Ray       | Nightfall Ritualist  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+48.   | Umbral Barrier       | Nightfall Darkcaster | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+49.   | Collapsing Night     | Speaker Shadowcrown  | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%
+50.   | Dark Orb             | Deathscreamer Iken.. | 0.0%                 | 0.0%                 | 0.0%                 | 0.0%

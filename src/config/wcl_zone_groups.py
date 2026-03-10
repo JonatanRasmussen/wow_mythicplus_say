@@ -7,7 +7,7 @@ class WclZoneFactory:
     BOSSES_KEY = "bosses"
 
     ZONE_ID_TWW_MYTHICPLUS = "45"
-
+    ZONE_ID_MIDNIGHT_MYTHICPLUS = "49"
 
     # Data
     WCL_ZONES = {
@@ -22,6 +22,19 @@ class WclZoneFactory:
                 ("112442", "Tazavesh: So'leah's Gambit"),
                 ("112441", "Tazavesh: Streets of Wonder"),
                 ("62662", "The Dawnbreaker"),
+            ]
+        },
+        ZONE_ID_MIDNIGHT_MYTHICPLUS: {
+            NAME_KEY: "TWW M+",
+            BOSSES_KEY: [
+                ("162526", "Algeth'ar Academy"),
+                ("62811", "Magister's Terrace"),
+                ("62874", "Maisara Caverns"),
+                ("62915", "Nexus-Point Xenas"),
+                ("60658", "Pit of Saron"),
+                ("411753", "Seat of the Triumvirate"),
+                ("111209", "Skyreach"),
+                ("62805", "Windrunner Spire"),
             ]
         }
     }

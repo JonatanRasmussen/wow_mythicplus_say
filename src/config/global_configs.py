@@ -16,7 +16,7 @@ class GlobalConfigs:
     WCL_ENCOUNTER_TO_STOP_AT = 99999
 
     # Feature Flags
-    SCRAPE_WIPES = True
+    SCRAPE_WIPES = False
     SCRAPE_MISSING_FIGHT_IDS = False
     SCRAPE_SHORT_FIGHTS = False
     SHORT_FIGHT_THRESHHOLD_IN_SEC = 600

@@ -50,23 +50,36 @@ def analyze_deadly_spells_per_boss(csv_filepath, output_filepath="deadly_spells_
                 if level_category not in analysis_data[boss_name]:
                     analysis_data[boss_name][level_category] = {}
                 if fight_outcome not in analysis_data[boss_name][level_category]:
+                    # MODIFICATION: Initialize a list to track death counts per run
                     analysis_data[boss_name][level_category][fight_outcome] = {
                         "sample_size": 0,
                         "killing_blows": Counter(),
                         "spell_names": {},
                         "total_duration_sec": 0,
+                        "death_counts_per_run": []
                     }
 
                 data_bucket = analysis_data[boss_name][level_category][fight_outcome]
                 data_bucket['sample_size'] += 1
 
-                # If the run was a kill, add its duration for averaging
-                if fight_outcome == 'kill' and fight_duration_sec_str:
-                    try:
-                        duration_sec = int(fight_duration_sec_str)
-                        data_bucket['total_duration_sec'] += duration_sec
-                    except (ValueError, TypeError):
-                        pass  # Ignore if duration is not a valid number
+                # MODIFICATION: For 'kill' runs, record duration and number of deaths
+                if fight_outcome == 'kill':
+                    if fight_duration_sec_str:
+                        try:
+                            duration_sec = int(fight_duration_sec_str)
+                            data_bucket['total_duration_sec'] += duration_sec
+                        except (ValueError, TypeError):
+                            pass
+
+                    # Count deaths for this run and store it
+                    num_deaths = 0
+                    if deaths_str and deaths_str != '[]':
+                        try:
+                            death_events = ast.literal_eval(deaths_str)
+                            num_deaths = len(death_events)
+                        except (ValueError, SyntaxError):
+                            pass # Keep num_deaths as 0 if parsing fails
+                    data_bucket['death_counts_per_run'].append(num_deaths)
 
                 if ability_list_str and ability_list_str != '[]':
                     try:
@@ -152,6 +165,28 @@ def analyze_deadly_spells_per_boss(csv_filepath, output_filepath="deadly_spells_
                             f"Avg. Time (<15): {format_seconds_to_hms(avg_dur_mk)} | "
                             f"Avg. Time (16+): {format_seconds_to_hms(avg_dur_hk)}")
 
+            # MODIFICATION: Calculate deathless and low-death run percentages
+            mid_kill_deaths = mid_kill_data.get('death_counts_per_run', [])
+            high_kill_deaths = high_kill_data.get('death_counts_per_run', [])
+            all_kill_deaths = mid_kill_deaths + high_kill_deaths
+
+            deathless_stats_str = ""
+            total_completed_runs = len(all_kill_deaths)
+
+            if total_completed_runs > 0:
+                death_counts = Counter(all_kill_deaths)
+                runs_0_deaths = death_counts[0]
+                runs_1_death = death_counts[1]
+                runs_2_deaths = death_counts[2]
+
+                perc_0_deaths = (runs_0_deaths / total_completed_runs) * 100
+                perc_0_or_1_deaths = ((runs_0_deaths + runs_1_death) / total_completed_runs) * 100
+                perc_0_to_2_deaths = ((runs_0_deaths + runs_1_death + runs_2_deaths) / total_completed_runs) * 100
+
+                deathless_stats_str = (f"| Deathless: {perc_0_deaths:.1f}% | "
+                                       f"≤1 Death: {perc_0_or_1_deaths:.1f}% | "
+                                       f"≤2 Deaths: {perc_0_to_2_deaths:.1f}%")
+
             def get_dpr_stats(data_bucket, spell_id):
                 sample_size = data_bucket.get('sample_size', 0)
                 if sample_size == 0:
@@ -200,8 +235,9 @@ def analyze_deadly_spells_per_boss(csv_filepath, output_filepath="deadly_spells_
             header_hw = f"DISBAND(16+) (N={ss_hw})"
 
             write_report("\n" + "="*144)
-            write_report(f" BOSS ENCOUNTER ANALYSIS: {boss_name} ({ss_mk+ss_hk+ss_mw+ss_hw} runs)")
-            write_report(avg_time_str) # ADDED LINE
+            # MODIFICATION: Add the new deathless stats string to the main header line
+            write_report(f" BOSS ENCOUNTER ANALYSIS: {boss_name} ({ss_mk+ss_hk+ss_mw+ss_hw} runs) {deathless_stats_str}")
+            write_report(avg_time_str)
             write_report("="*144)
             write_report(f"\n--- Top {top_n} Most Deadly Spells (Deaths per Run) ---")
             write_report("Ranked by Deaths/Run for Full Clears in Levels 10-15.")
