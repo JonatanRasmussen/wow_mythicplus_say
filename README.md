@@ -4,4 +4,6 @@ It also contains some old tools to scrape spell data from wowhead.com.
 
 **Unfortunately, the project no longer works due to www.warcraftlogs.com implementing "click the checkbox to confirm you are not a bot" checks when accessing specific logs.** This used to not exist back when I wrote this project, but for now, this entire project is retired and in a non-working state (unless you want to analyze some of the old data I scraped before the anti-bot implementation).
 
-![This image](showcase.PNG) showcases an example of the summary data generated. The percentages are average number of deaths to each ability per run.
+The following image showcases an example of the summary data generated. The percentages are average number of deaths to each ability per run.
+
+[[Link to image]](showcase.PNG)
