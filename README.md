@@ -1,4 +1,4 @@
-This is a webscraping project that searches www.warcraftlogs.com for every public dungeon log uploaded on the site, with the goal being to generate summary statitics across a large sample size of dungeon runs (such as most deadly spells, average completion time, etc.)
+This is a webscraping project that searches www.warcraftlogs.com for every public dungeon log uploaded on the site, with the goal being to generate summary statistics across a large sample size of dungeon runs (such as most deadly spells, average completion time, etc.)
 
 It also contains some old tools to scrape spell data from wowhead.com.
 
