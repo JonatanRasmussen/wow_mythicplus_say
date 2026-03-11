@@ -6,4 +6,4 @@ It also contains some old tools to scrape spell data from wowhead.com.
 
 The following image showcases an example of the summary data generated. The percentages are average number of deaths to each ability per run.
 
-![Image link](showcase.PNG).
+![Image link](showcase.PNG)
